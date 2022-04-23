@@ -100,15 +100,15 @@ class Spotify extends EventTarget {
 }
 
 // #region Access Server functions
-// STUB
 async function startAccessServer(accessProtectionToken = randomString(32)) {
-    // TODO: IMPLEMENT PLUGIN_LOADER PYTHON START METHOD
-    return "abc";
+    console.log(await call_plugin_method("start_access_server", { accessProtectionToken }));
+    return accessProtectionToken;
 }
-// STUB
+window.startAccessServer = startAccessServer;
 async function stopAccessServer() {
-    // TODO: IMPLEMENT_PLUGIN_LOADER PYTHON STOP METHOD
+    console.log(await call_plugin_method("stop_access_server"));
 }
+window.stopAccessServer = stopAccessServer;
 async function isAccessServerOnline() {
     try {
         const res = await fetch(ACCESS_SERVER_URI + "/heartbeat");
@@ -160,7 +160,7 @@ async function getAccessTokenFromBackend(accessProtectionToken = "") {
             if (json.error) return {
                 error: json.error
             };
-            if (json.access_code && json.access_code[0]) accessCode = json.access_code[0];
+            if (json.access_code) accessCode = json.access_code;
             if (json.code_challenge) pcke = json.code_challenge;
         } catch (error) {
             console.warn(error);
