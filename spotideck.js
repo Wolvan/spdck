@@ -104,11 +104,9 @@ async function startAccessServer(accessProtectionToken = randomString(32)) {
     console.log(await call_plugin_method("start_access_server", { accessProtectionToken }));
     return accessProtectionToken;
 }
-window.startAccessServer = startAccessServer;
 async function stopAccessServer() {
     console.log(await call_plugin_method("stop_access_server"));
 }
-window.stopAccessServer = stopAccessServer;
 async function isAccessServerOnline() {
     try {
         const res = await fetch(ACCESS_SERVER_URI + "/heartbeat");
