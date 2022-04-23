@@ -8,16 +8,13 @@ from random import choices
 import string
 import json
 from hashlib import sha256
-from base64 import b64encode;
+from base64 import b64encode
 
 SPOTIDECK_HOST_NAME = "localhost"
 SPOTIDECK_PORT_NUMBER = 49983
 
+spotideck_access_code_cache = {}
 class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
-    __state = "".join(choices(string.ascii_letters + string.digits, k=16))
-    __code_challenge = "".join(choices(string.ascii_letters + string.digits + "_.-", k=128))
-    __access_code = None,
-    __access_protection_code = None
     def do_OPTIONS(self):
         self.send_response(200, "ok")
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -26,13 +23,14 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
         self.end_headers()
         return
     def do_GET(self):
+        global spotideck_access_code_cache
         if (self.path == "/"):
             self.send_response(302)
             self.send_header("Location", "https://accounts.spotify.com/authorize?" + urlencode({
                 "response_type": "code",
                 "client_id": "39419929d0af4ecd9823ddaf925da504",
                 "scope": "user-modify-playback-state user-read-playback-state user-read-currently-playing",
-                "redirect_uri": "http://" + SPOTIDECK_HOST_NAME + ":" + SPOTIDECK_PORT_NUMBER + "/callback",
+                "redirect_uri": "http://" + SPOTIDECK_HOST_NAME + ":" + str(SPOTIDECK_PORT_NUMBER) + "/callback",
                 "state": self.__state,
                 "code_challenge_method": "S256",
                 "code_challenge": b64encode(sha256(self.__code_challenge.encode()).digest()).decode().replace("=", "").replace("+", "-").replace("/", "_"),
@@ -49,7 +47,7 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
             if ("error" in query and query["error"][0] != ""):
                 self.respond({"error": query["error"][0]}, 403)
                 return
-            self.__access_code = query["code"]
+            spotideck_access_code_cache[self.__access_protection_code] = query["code"][0]
             self.respond(
                 """
                 <html>
@@ -70,18 +68,22 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
                     "error": "invalid_access_key"
                 })
                 return
-            if (self.__access_code is None):
-                self.respond({})
-            else:
-                self.respond({
-                    "access_code": self.__access_code,
-                    "code_challenge": self.__code_challenge
-                })
+            try:
+                if (spotideck_access_code_cache[self.__access_protection_code] is None):
+                    self.respond({})
+                else:
+                    self.respond({
+                        "access_code": spotideck_access_code_cache[self.__access_protection_code],
+                        "code_challenge": self.__code_challenge
+                    })
+            except AttributeError as e:
+                self.respond(repr(e))
+            except Exception as e:
+                self.respond(repr(e))
         else:
             self.respond({
                 "error": "invalid_route"
             }, 404)
-        return
     def respond(self, content = {}, status = 200, contentType = "application/json"):
         self.send_response(status)
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -93,38 +95,56 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
             self.wfile.write(content.encode("utf-8"))
         return
     def set_access_protection_key(self, key = None):
-        if (self.__access_protection_code != None or key == None):
+        if (key == None):
             return
         self.__access_protection_code = key
+    def set_state(self, state: string):
+        if (state == None):
+            return
+        self.__state = state
+    def set_challenge(self, challenge: string):
+        if (challenge == None):
+            return
+        self.__code_challenge = challenge
+
+def Spotideck_createHandler(access_protection_key: string):
+    handler = Spotideck_AccessServerHandler
+    spotideck_access_code_cache[access_protection_key] = None
+    handler.set_access_protection_key(handler, access_protection_key)
+    handler.set_state(handler, "".join(choices(string.ascii_letters + string.digits, k=16)))
+    handler.set_challenge(handler, "".join(choices(string.ascii_letters + string.digits + "_.-", k=128)))
+    return handler
+
 class Spotideck_ThreadedServer(Thread):
+    __thread = None
+    __server = None
+    __serverHandler = None
     def run(self, access_protection_key = ""):
-        serverHandler = Spotideck_AccessServerHandler
-        Spotideck_AccessServerHandler.set_access_protection_key(serverHandler, access_protection_key)
-        self.server = ThreadingHTTPServer((SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER), serverHandler)
-        self.daemon = True
-        self.thread = Thread(target=self.server.serve_forever)
-        self.thread.start()
+        self.__serverHandler = Spotideck_createHandler(access_protection_key)
+        self.__server = ThreadingHTTPServer((SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER), self.__serverHandler)
+        self.__thread = Thread(target=self.__server.serve_forever)
+        self.__thread.start()
     def shutdown(self):
-        self.server.shutdown()
+        self.__server.shutdown()
+        self.__server.server_close()
 
 class Plugin:
-    __active_server = None
     # A normal method. It can be called from JavaScript using call_plugin_function("method_1", argument1, argument2)
-    async def start_access_server(self, *args):
+    async def start_access_server(self, accessProtectionToken ):
         if (self.__active_server != None):
             self.__active_server.shutdown()
         self.__active_server = Spotideck_ThreadedServer()
-        self.__active_server.run(access_protection_key = args[0])
-        print(time.asctime(), "Spotideck Login Server UP - %s:%s" % (SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER))
+        self.__active_server.run(access_protection_key = accessProtectionToken)
+        return (time.asctime(), "Spotideck Login Server UP - %s:%s" % (SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER))
 
     # A normal method. It can be called from JavaScript using call_plugin_function("method_2", argument1, argument2)
     async def stop_access_server(self, *args):
         if (self.__active_server == None):
-            return
+            return False
         self.__active_server.shutdown()
         self.__active_server = None
-        print(time.asctime(), "Spotideck Login Server DOWN - %s:%s" % (SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER))
+        return (time.asctime(), "Spotideck Login Server DOWN - %s:%s" % (SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER))
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
-        pass
+        self.__active_server = None
