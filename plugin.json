@@ -1,7 +1,9 @@
 {
-    "name": "Plugin name",
-    "author": "Plugin author",
-    "main_view_html": "main_view.html",
+    "name": "Spotideck",
+    "author": "Wolvan",
+    "version": "0.0.1",
+    "description": "Spotify Controls for the Steamdeck Quick Access Menu",
+    "main_view_html": "spotideck.html",
     "tile_view_html": "",
-    "flags": ["_hot_reload", "_root"]
+    "flags": ["debug"]
 }
