@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/steam_resource/css/2.css">
+        <link rel="stylesheet" href="/steam_resource/css/39.css">
+        <link rel="stylesheet" href="/steam_resource/css/library.css">
+        <link rel="stylesheet" href="./spotideck.css">
+        <script src="/static/library.js"></script>
+        <script src="./spotideck.js" defer="true"></script>
+    </head>
+    <body>
+        <div id="token-system" class="hidden">
+            <a href="http://localhost:49983/" target="_blank">
+                Log in to spotify
+            </a>
+        </div>
+        <div id="spotify-controls" class="hidden">
+            <div id="play-button">Play</div>
+            <div id="pause-button">Pause</div>
+            <div id="next-button">Next</div>
+            <div id="previous-button">Previous</div>
+        </div>
+        <div id="spotify-player" class="hidden">
+            <div id="player-container">
+                <div id="player-image"></div>
+                <div id="player-info">
+                    <div id="player-name"></div>
+                    <div id="player-artist"></div>
+                </div>
+            </div>
+            <div id="player-progress">
+                <div id="player-progress-bar"></div>
+            </div>
+        </div>
+        <div id="force-token-logout">
+            <a href="#">Force logout</a>
+        </div>
+    </body>
+</html>
