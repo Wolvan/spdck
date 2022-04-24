@@ -1,3 +1,19 @@
-.hidden {
+.spotideck-hidden {
     display: none;
+}
+
+#spotideck-controls,
+#spotideck-token-system {
+    margin-top: 5px;
+}
+
+#force-token-logout {
+    position: absolute;
+    bottom: 5px;
+    right: 7.5px;
+    font-size: .75em;
+}
+#force-token-logout a {
+    color: #bababa;
+    text-decoration: none;
 }

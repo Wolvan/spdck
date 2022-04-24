@@ -8,27 +8,130 @@
         <script src="./spotideck.js" defer="true"></script>
     </head>
     <body>
-        <div id="token-system" class="hidden">
-            <a href="http://localhost:49983/" target="_blank">
-                Log in to spotify
-            </a>
-        </div>
-        <div id="spotify-controls" class="hidden">
-            <div id="play-button">Play</div>
-            <div id="pause-button">Pause</div>
-            <div id="next-button">Next</div>
-            <div id="previous-button">Previous</div>
-        </div>
-        <div id="spotify-player" class="hidden">
-            <div id="player-container">
-                <div id="player-image"></div>
-                <div id="player-info">
-                    <div id="player-name"></div>
-                    <div id="player-artist"></div>
+        <div class="quickaccessmenu_TabGroupPanel_1QO7b Panel Focusable">
+            <div class="quickaccesscontrols_PanelSection_Ob5uo" class="spotideck-hidden" id="spotideck-controls">
+                <div class="quickaccesscontrols_PanelSectionTitle_RtCjX">
+                    <div class="quickaccesscontrols_Text_1EPCJ">Controls</div>
+                </div>
+                <div class="quickaccesscontrols_PanelSectionRow_26R5w">
+                    <div class="gamepaddialog_Field_eKmEX gamepaddialog_WithChildrenBelow_37xzV gamepaddialog_InlineWrapShiftsChildrenBelow_3LCXh gamepaddialog_WithBottomSeparator_3YKpU gamepaddialog_ChildrenWidthFixed_ljcbL gamepaddialog_ExtraPaddingOnChildrenBelow_3nLNL gamepaddialog_CompactPadding_3hgIZ gamepaddialog_HighlightOnFocus_2HFrm Panel Focusable" style="--indent-level:0;">
+                        <div class="gamepaddialog_FieldChildren_2rhav">
+                            <div class="gamepadslider_SliderControlWithIcon_32O-U Panel Focusable" id="spotideck-volume-slider">
+                                <div class="gamepadslider_Icon_K9V_G Panel Focusable">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+                                        <path d="M5.63636 13L10 7H13V29H10L5.63636 23H2V13H5.63636Z" fill="currentColor"></path>
+                                        <path d="M27.8284 18L33.4142 23.5858L30.5858 26.4142L25 20.8285L19.4142 26.4142L16.5858 23.5858L22.1716 18L16.5858 12.4142L19.4142 9.58578L25 15.1716L30.5858 9.58578L33.4142 12.4142L27.8284 18Z" fill="currentColor"></path>
+                                    </svg>
+                                </div>
+                                <div class="gamepadslider_SliderControlPanelGroup_198v6 Panel Focusable" tabindex="0">
+                                    <div class="gamepadslider_SliderControlAndNotches_23hjX Focusable" tabindex="0"
+                                        style="--normalized-slider-value:0;">
+                                        <div class="gamepadslider_SliderControl_1udlG">
+                                            <div class="gamepadslider_SliderTrack_2_vG6 "></div>
+                                            <div class="gamepadslider_SliderHandleContainer_8xNY6">
+                                                <div class="gamepadslider_SliderHandle_11PBf"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quickaccesscontrols_PanelSectionRow_26R5w">
+                    <div class="gamepaddialog_Field_eKmEX gamepaddialog_WithChildrenBelow_37xzV gamepaddialog_InlineWrapShiftsChildrenBelow_3LCXh gamepaddialog_WithBottomSeparator_3YKpU gamepaddialog_ChildrenWidthFixed_ljcbL gamepaddialog_ExtraPaddingOnChildrenBelow_3nLNL gamepaddialog_CompactPadding_3hgIZ gamepaddialog_HighlightOnFocus_2HFrm Panel Focusable" style="--indent-level:0;">
+                        <div class="gamepaddialog_FieldChildren_2rhav">
+                            <div class="gamepadslider_SliderControlWithIcon_32O-U Panel Focusable" id="spotideck-track-progress">
+                                <div class="gamepadslider_Icon_K9V_G Panel Focusable">
+                                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+                                        <circle fill="currentColor" cx="29" cy="29" r="29"/>
+                                        <polygon fill="#0c131b" points="44,29 22,44 22,29.273 22,14 	"/>
+                                        <path fill="#0c131b" d="M22,45c-0.16,0-0.321-0.038-0.467-0.116C21.205,44.711,21,44.371,21,44V14 c0-0.371,0.205-0.711,0.533-0.884c0.328-0.174,0.724-0.15,1.031,0.058l22,15C44.836,28.36,45,28.669,45,29s-0.164,0.64-0.437,0.826 l-22,15C22.394,44.941,22.197,45,22,45z M23,15.893v26.215L42.225,29L23,15.893z"/>
+                                    </svg>
+                                </div>
+                                <div class="gamepadslider_SliderControlPanelGroup_198v6 Panel Focusable" tabindex="0">
+                                    <div class="gamepadslider_SliderControlAndNotches_23hjX Focusable" tabindex="0"
+                                        style="--normalized-slider-value:0.56677;">
+                                        <div class="gamepadslider_SliderControl_1udlG">
+                                            <div class="gamepadslider_SliderTrack_2_vG6 "></div>
+                                            <div class="gamepadslider_SliderHandleContainer_8xNY6">
+                                                <div class="gamepadslider_SliderHandle_11PBf"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quickaccesscontrols_PanelSectionRow_26R5w">
+                    <div class="gamepaddialog_Field_eKmEX gamepaddialog_WithFirstRow_2bDqk gamepaddialog_WithBottomSeparator_3YKpU gamepaddialog_ExtraPaddingOnChildrenBelow_3nLNL gamepaddialog_StandardPadding_xIITX gamepaddialog_HighlightOnFocus_2HFrm Panel Focusable" style="--indent-level:0;">
+                        <div class="gamepaddialog_FieldLabelRow_2VcTl">
+                            <div class="gamepaddialog_FieldLabel_3jMlJ">
+                                <div class="gamepaddialog_FieldLeadIcon_3CGpa"><svg xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 36 36" fill="none" class="controllersettings_Rumble_3r25x">
+                                        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M0 11C0 9.89543 0.895431 9 2 9H34C35.1046 9 36 9.89543 36 11V24C36 25.6569 34.6569 27 33 27H3C1.34315 27 0 25.6569 0 24V11ZM33 16C33 16.5523 32.5523 17 32 17C31.4477 17 31 16.5523 31 16C31 15.4477 31.4477 15 32 15C32.5523 15 33 15.4477 33 16ZM32 13C32.5523 13 33 12.5523 33 12C33 11.4477 32.5523 11 32 11C31.4477 11 31 11.4477 31 12C31 12.5523 31.4477 13 32 13ZM35 14C35 14.5523 34.5523 15 34 15C33.4477 15 33 14.5523 33 14C33 13.4477 33.4477 13 34 13C34.5523 13 35 13.4477 35 14ZM30 15C30.5523 15 31 14.5523 31 14C31 13.4477 30.5523 13 30 13C29.4477 13 29 13.4477 29 14C29 14.5523 29.4477 15 30 15ZM6 14C6 15.1046 5.10457 16 4 16C2.89543 16 2 15.1046 2 14C2 12.8954 2.89543 12 4 12C5.10457 12 6 12.8954 6 14ZM2.5 21C2.22386 21 2 21.2239 2 21.5V24.5C2 24.7761 2.22386 25 2.5 25H5.5C5.77614 25 6 24.7761 6 24.5V21.5C6 21.2239 5.77614 21 5.5 21H2.5ZM30 21.5C30 21.2239 30.2239 21 30.5 21H33.5C33.7761 21 34 21.2239 34 21.5V24.5C34 24.7761 33.7761 25 33.5 25H30.5C30.2239 25 30 24.7761 30 24.5V21.5ZM28 11H8V25H28V11Z">
+                                        </path>
+                                    </svg></div>Shuffle
+                            </div>
+                            <div class="gamepaddialog_FieldChildren_2rhav">
+                                <div class="gamepaddialog_Toggle_9Ql-o gamepaddialog_On_yLrDA Focusable" tabindex="0" id="spotideck-shuffle-control">
+                                    <div class="gamepaddialog_ToggleRail_2bl0i"></div>
+                                    <div class="gamepaddialog_ToggleSwitch_1PQpp"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quickaccesscontrols_PanelSectionRow_26R5w">
+                    <div class="gamepaddialog_Field_eKmEX gamepaddialog_WithFirstRow_2bDqk gamepaddialog_WithBottomSeparator_3YKpU gamepaddialog_ExtraPaddingOnChildrenBelow_3nLNL gamepaddialog_StandardPadding_xIITX gamepaddialog_HighlightOnFocus_2HFrm Panel Focusable" style="--indent-level:0;">
+                        <div class="gamepaddialog_FieldLabelRow_2VcTl">
+                            <div class="gamepaddialog_FieldLabel_3jMlJ">
+                                <div class="gamepaddialog_FieldLeadIcon_3CGpa"><svg xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 36 36" fill="none">
+                                        <path fill="currentColor"
+                                            d="M6.68629 7C3.79086 9.89543 2 13.8954 2 18.3137C2 22.732 3.79086 26.732 6.68629 29.6274L9.51472 26.799C7.34315 24.6274 6 21.6274 6 18.3137C6 15 7.34315 12 9.51472 9.82843L6.68629 7Z">
+                                        </path>
+                                        <path fill="currentColor"
+                                            d="M26.4853 9.82843L29.3137 7C32.2091 9.89543 34 13.8954 34 18.3137C34 22.732 32.2091 26.732 29.3137 29.6274L26.4853 26.799C28.6569 24.6274 30 21.6274 30 18.3137C30 15 28.6569 12 26.4853 9.82843Z">
+                                        </path>
+                                        <circle fill="currentColor" cx="18" cy="18" r="2"></circle>
+                                        <path fill="currentColor"
+                                            d="M17.8891 9.04865C15.6603 9.10326 13.4479 9.98104 11.7469 11.682C9.93317 13.4958 9.05539 15.8911 9.11363 18.2678L13.1158 18.2678C13.0561 16.9153 13.5426 15.5431 14.5754 14.5104C15.4953 13.5905 16.6844 13.104 17.8891 13.0508V9.04865Z">
+                                        </path>
+                                        <path fill="currentColor"
+                                            d="M23.106 18.2678L27.1082 18.2678C27.0536 20.4966 26.1758 22.709 24.4749 24.4099C22.6611 26.2237 20.2657 27.1015 17.8891 27.0432V23.041C19.2416 23.1007 20.6137 22.6142 21.6464 21.5815C22.5663 20.6616 23.0528 19.4725 23.106 18.2678Z">
+                                        </path>
+                                    </svg></div>Repeat
+                            </div>
+                            <div class="gamepaddialog_FieldChildren_2rhav">
+                                <div class="gamepaddialog_Toggle_9Ql-o gamepaddialog_On_yLrDA Focusable" tabindex="0" id="spotideck-repeat-control">
+                                    <div class="gamepaddialog_ToggleRail_2bl0i"></div>
+                                    <div class="gamepaddialog_ToggleSwitch_1PQpp"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="player-progress">
-                <div id="player-progress-bar"></div>
+            <div class="quickaccesscontrols_PanelSection_Ob5uo" class="spotideck-hidden" id="spotideck-track">
+                <div class="quickaccesscontrols_PanelSectionTitle_RtCjX">
+                    <div class="quickaccesscontrols_Text_1EPCJ">Track</div>
+                </div>
+                
+            </div>
+            <div class="quickaccesscontrols_PanelSection_Ob5uo" class="spotideck-hidden" id="spotideck-token-system">
+                <div class="quickaccesscontrols_PanelSectionTitle_RtCjX">
+                    <div class="quickaccesscontrols_Text_1EPCJ">Login</div>
+                </div>
+                <div class="quickaccesscontrols_PanelSectionRow_26R5w">
+                    <div id="spotideck-login-button" class="basicdialog_Field_ugL9c basicdialog_WithChildrenBelow_1RjOd basicdialog_InlineWrapShiftsChildrenBelow_3a6QZ basicdialog_ExtraPaddingOnChildrenBelow_2-owv basicdialog_StandardPadding_1HrfN basicdialog_HighlightOnFocus_1xh2W Panel Focusable" style="--indent-level:0; margin: 0px; padding: 0px; padding-top: 8px;">
+                        <div class="basicdialog_FieldChildren_279n8">
+                            <button type="button" tabindex="0" class="DialogButton _DialogLayout Secondary basicdialog_Button_1Ievp Focusable">Log in to Spotify</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="force-token-logout">

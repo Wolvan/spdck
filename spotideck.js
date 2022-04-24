@@ -99,6 +99,94 @@ class Spotify extends EventTarget {
 
 }
 
+const volumeLevels = [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <path d="M5.63636 13L10 7H13V29H10L5.63636 23H2V13H5.63636Z" fill="currentColor"></path>
+        <path d="M27.8284 18L33.4142 23.5858L30.5858 26.4142L25 20.8285L19.4142 26.4142L16.5858 23.5858L22.1716 18L16.5858 12.4142L19.4142 9.58578L25 15.1716L30.5858 9.58578L33.4142 12.4142L27.8284 18Z" fill="currentColor"></path>
+    </svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <path d="M5.63636 13L10 7H13V29H10L5.63636 23H2V13H5.63636Z" fill="currentColor"></path>
+        <path opacity="0.5" d="M24.7279 30.7279C31.7573 23.6985 31.7573 12.3015 24.7279 5.27209L27.5563 2.44366C36.1479 11.0352 36.1479 24.9648 27.5563 33.5564L24.7279 30.7279Z" fill="currentColor"></path>
+        <path opacity="0.5" d="M20.4853 9.51471C25.1716 14.201 25.1716 21.799 20.4853 26.4853L23.3137 29.3137C29.5621 23.0653 29.5621 12.9347 23.3137 6.68628L20.4853 9.51471Z" fill="currentColor"></path>
+        <path d="M16.2426 13.7574C18.5858 16.1005 18.5858 19.8995 16.2426 22.2426L19.071 25.0711C22.9763 21.1658 22.9763 14.8342 19.071 10.9289L16.2426 13.7574Z" fill="currentColor"></path>
+    </svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <path d="M5.63636 13L10 7H13V29H10L5.63636 23H2V13H5.63636Z" fill="currentColor"></path>
+        <path opacity="0.5" d="M24.7279 30.7279C31.7573 23.6985 31.7573 12.3015 24.7279 5.27209L27.5563 2.44366C36.1479 11.0352 36.1479 24.9648 27.5563 33.5564L24.7279 30.7279Z" fill="currentColor"></path>
+        <path d="M20.4853 9.51471C25.1716 14.201 25.1716 21.799 20.4853 26.4853L23.3137 29.3137C29.5621 23.0653 29.5621 12.9347 23.3137 6.68628L20.4853 9.51471Z" fill="currentColor"></path>
+        <path d="M16.2426 13.7574C18.5858 16.1005 18.5858 19.8995 16.2426 22.2426L19.071 25.0711C22.9763 21.1658 22.9763 14.8342 19.071 10.9289L16.2426 13.7574Z" fill="currentColor"></path>
+    </svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <path d="M5.63636 13L10 7H13V29H10L5.63636 23H2V13H5.63636Z" fill="currentColor"></path>
+        <path d="M24.7279 30.7279C31.7573 23.6985 31.7573 12.3015 24.7279 5.27209L27.5563 2.44366C36.1479 11.0352 36.1479 24.9648 27.5563 33.5564L24.7279 30.7279Z" fill="currentColor"></path>
+        <path d="M20.4853 9.51471C25.1716 14.201 25.1716 21.799 20.4853 26.4853L23.3137 29.3137C29.5621 23.0653 29.5621 12.9347 23.3137 6.68628L20.4853 9.51471Z" fill="currentColor"></path>
+        <path d="M16.2426 13.7574C18.5858 16.1005 18.5858 19.8995 16.2426 22.2426L19.071 25.0711C22.9763 21.1658 22.9763 14.8342 19.071 10.9289L16.2426 13.7574Z" fill="currentColor"></path>
+    </svg>`
+];
+function setSpotideckTrackProgress(progress = 0) {
+    const sliderContainer = document.querySelector("#spotideck-track-progress");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    slider.setAttribute("style", "--normalized-slider-value:" + (progress > 1 ? 1 : progress < 0 ? 0 : progress) + ";");
+}
+function getSpotideckTrackProgress() {
+    const sliderContainer = document.querySelector("#spotideck-track-progress");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    const styleAttr = slider.getAttribute("style");
+    const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
+    return normalizedValue;
+}
+window.setSpotideckTrackProgress = setSpotideckTrackProgress;
+window.getSpotideckTrackProgress = getSpotideckTrackProgress;
+function setSpotideckVolumePercentage(volume = 0) {
+    const sliderContainer = document.querySelector("#spotideck-volume-slider");
+    const iconContainer = sliderContainer.querySelector(".gamepadslider_Icon_K9V_G");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+
+    const icon = volume === 1 ? 3 : volume === 0 ? 0 : (Math.floor((volume * 100) / 33) + 1);
+    iconContainer.innerHTML = volumeLevels[icon];
+
+    slider.setAttribute("style", "--normalized-slider-value:" + (volume > 1 ? 1 : volume < 0 ? 0 : volume) + ";");
+}
+function getSpotideckVolumePercentage() {
+    const sliderContainer = document.querySelector("#spotideck-volume-slider");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    const styleAttr = slider.getAttribute("style");
+    const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
+    return normalizedValue;
+}
+window.setSpotideckVolumePercentage = setSpotideckVolumePercentage;
+window.getSpotideckVolumePercentage = getSpotideckVolumePercentage;
+
+function setToggleState(toggle, state) {
+    const ENABLED_CLASS = "gamepaddialog_On_yLrDA";
+    if (state && !toggle.classList.contains(ENABLED_CLASS)) toggle.classList.add(ENABLED_CLASS);
+    if (!state && toggle.classList.contains(ENABLED_CLASS)) toggle.classList.remove(ENABLED_CLASS);
+}
+function getToggleState(toggle) {
+    return toggle.classList.contains("gamepaddialog_On_yLrDA");
+}
+
+function setSpotideckShuffle(shuffle = false) {
+    const shuffleButton = document.querySelector("#spotideck-shuffle-control");
+    setToggleState(shuffleButton, shuffle);
+}
+function getSpotideckShuffle() {
+    const shuffleButton = document.querySelector("#spotideck-shuffle-control");
+    return getToggleState(shuffleButton);
+}
+window.setSpotideckShuffle = setSpotideckShuffle;
+window.getSpotideckShuffle = getSpotideckShuffle;
+function setSpotideckRepeat(repeat = false) {
+    const repeatButton = document.querySelector("#spotideck-repeat-control");
+    setToggleState(repeatButton, repeat);
+}
+function getSpotideckRepeat() {
+    const repeatButton = document.querySelector("#spotideck-repeat-control");
+    return getToggleState(repeatButton);
+}
+window.setSpotideckRepeat = setSpotideckRepeat;
+window.getSpotideckRepeat = getSpotideckRepeat;
+
 // #region Access Server functions
 async function startAccessServer(accessProtectionToken = randomString(32)) {
     console.log(await call_plugin_method("start_access_server", { accessProtectionToken }));
@@ -171,6 +259,7 @@ async function getAccessTokenFromBackend(accessProtectionToken = "") {
     }
 }
 // #endregion
+// #region SpotifyAPI Init
 async function getTokens(code, pcke) {
     const fetched = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
@@ -194,10 +283,10 @@ async function getTokens(code, pcke) {
         }
     }
 }
-
-async function setupSpotifyClient() {
+async function setupSpotifyClient(openNewWindow = true) {
     const accessKey = await startAccessServer();
     await waitForAccessServer();
+    if (openNewWindow) window.open('http://localhost:49983/', '_blank');
     const {
         accessCode,
         pcke,
@@ -212,30 +301,45 @@ async function setupSpotifyClient() {
     client.addEventListener("refresh-token-updated", (evt) => localStorage.setItem("SPOTIDECK_REFRESH_TOKEN", evt.detail.refreshToken));
     return client;
 }
-
 async function initSpotifyControls() {
     const token = localStorage.getItem("SPOTIDECK_REFRESH_TOKEN");
     if (!token) {
-        document.querySelector("#spotify-controls").classList.add("hidden");
+        document.querySelector("#spotideck-controls").classList.add("spotideck-hidden");
+        document.querySelector("#spotideck-track").classList.add("spotideck-hidden");
         spotifyAPI = null;
-        document.querySelector("#token-system").classList.remove("hidden");
-        spotifyAPI = await setupSpotifyClient();
-        if (spotifyAPI) {
-            document.querySelector("#token-system").classList.add("hidden");
-            document.querySelector("#spotify-controls").classList.remove("hidden");
-        }
+        document.querySelector("#spotideck-token-system").classList.remove("spotideck-hidden");
     } else {
-        document.querySelector("#token-system").classList.add("hidden");
+        document.querySelector("#spotideck-token-system").classList.add("spotideck-hidden");
         spotifyAPI = new Spotify(token);
         spotifyAPI.addEventListener("refresh-token-updated", (evt) => localStorage.setItem("SPOTIDECK_REFRESH_TOKEN", evt.detail.refreshToken));
-        document.querySelector("#spotify-controls").classList.remove("hidden");
+        document.querySelector("#spotideck-controls").classList.remove("spotideck-hidden");
+        document.querySelector("#spotideck-track").classList.remove("spotideck-hidden");
     }
 };
+// #endregion
 
+// #region Button Bindings
+document.querySelector("#spotideck-login-button").addEventListener("click", async () => {
+    spotifyAPI = await setupSpotifyClient();
+    if (spotifyAPI) {
+        document.querySelector("#spotideck-token-system").classList.add("spotideck-hidden");
+        document.querySelector("#spotideck-controls").classList.remove("spotideck-hidden");
+        document.querySelector("#spotideck-track").classList.remove("spotideck-hidden");
+    }
+});
 document.querySelector("#force-token-logout a").addEventListener("click", (evt) => {
     localStorage.removeItem("SPOTIDECK_REFRESH_TOKEN");
     initSpotifyControls();
     evt.preventDefault();
 });
+document.querySelector("#spotideck-repeat-control").addEventListener("click", async (evt) => {
+    setSpotideckRepeat(!getSpotideckRepeat());
+    evt.preventDefault();
+});
+document.querySelector("#spotideck-shuffle-control").addEventListener("click", async (evt) => {
+    setSpotideckShuffle(!getSpotideckShuffle());
+    evt.preventDefault();
+});
+// #endregion
 initSpotifyControls();
 })();
