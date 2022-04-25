@@ -7,6 +7,23 @@
     margin-top: 5px;
 }
 
+#spotideck-track-container {
+    position: relative;
+}
+#spotideck-track-artwork {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 25%;
+    border: 1px solid #bababa;
+}
+#spotideck-track-info {
+    position: absolute;
+    top: 5px;
+    left: calc(25% + 10px);
+    width: calc(75% - 5px - 5px);
+}
+
 #force-token-logout {
     position: absolute;
     bottom: 5px;
