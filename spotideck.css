@@ -96,13 +96,19 @@
     line-height: 1em;
 }
 
-#force-token-logout {
+#force-token-logout,
+#spotideck-version {
     position: absolute;
     bottom: 5px;
     right: 7.5px;
     font-size: .75em;
 }
-#force-token-logout a {
+#spotideck-version {
+    right: initial;
+    left: 7.5px;
+}
+#force-token-logout a,
+#spotideck-version a {
     color: #bababa;
     text-decoration: none;
 }
