@@ -11,30 +11,28 @@
     position: relative;
     height: 40px;
 }
-#spotideck-play-pause {
+#spotideck-controls .spotideck-playback-control-button {
     position: absolute;
     top: 5px;
-    left: 50%;
     transform: translate(-50%);
-    width: 15px;
-    height: 15px;
+    width: 30px;
+    height: 30px;
 }
-#spotideck-play-pause.is-playing {
-    width: 25px;
-    height: 25px;
-}
-#spotideck-play-pause #spotideck-play-button {
+#spotideck-controls .spotideck-playback-control-button svg {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
-#spotideck-play-pause #spotideck-pause-button {
-    width: 33px;
-    height: 32px;
-    margin-top: -8px;
-    margin-left: -3px;
+#spotideck-previous-button {
+    left: calc(50% - 45px);
+}
+#spotideck-next-button {
+    left: calc(50% + 45px);
+}
+#spotideck-play-pause {
+    left: 50%;
 }
 #spotideck-play-pause.is-playing #spotideck-play-button {
     display: none;

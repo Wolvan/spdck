@@ -15,6 +15,13 @@ class Spotify extends EventTarget {
     _refreshToken = null;
     _accessToken = null;
     _apiEndpoint = null;
+    _trackCache = {};
+    _currentTrackId = null;
+    _shuffle = false;
+    _repeatMode = "off";
+    _playing = false;
+    _volume = 0;
+    _autoUpdateInterval = 0;
     constructor(refreshToken = "", accessToken = "", spotifyAPIEndpoint = "https://api.spotify.com/v1") {
         super();
         if (!refreshToken) throw new Error("No refresh token specified");
@@ -136,8 +143,101 @@ class Spotify extends EventTarget {
             state: (!!state).toString()
         })).__statusCode === 204;
     }
+    async getTrackInformation(trackId) {
+        if (!trackId) throw new Error("No track id specified");
+        if (this._trackCache[trackId]) {
+            this._trackCache[trackId].__lastUsed = new Date();
+            return this._trackCache[trackId];
+        }
+        const trackResult = this._trackCache[trackId] = await this.__request(`/tracks/${trackId}`);
+        this._trackCache[trackId].__lastUsed = new Date();
+
+        if (Object.keys(this._trackCache).length > 100) {
+            const oldest = Object.keys(this._trackCache).reduce((a, b) => this._trackCache[a].__lastUsed < this._trackCache[b].__lastUsed ? a : b);
+            delete this._trackCache[oldest];
+        }
+        return trackResult;
+    }
+
+    async __triggerUpdate(forceEventTriggers = false) {
+        const playbackState = await this.getPlaybackState();
+        if (playbackState) {
+            if (playbackState.item && typeof playbackState.item.id === "string" && (this._currentTrackId !== playbackState.item.id || forceEventTriggers)) {
+                this._currentTrackId = playbackState.item.id;
+                this._trackCache[this._currentTrackId] = playbackState.item;
+                this.dispatchEvent(new CustomEvent("track-changed", {
+                    detail: {
+                        track: await this.getTrackInformation(this._currentTrackId)
+                    }
+                }));
+            }
+            if (playbackState.repeat_state !== this._repeatMode || forceEventTriggers) {
+                this._repeatMode = playbackState.repeat_state;
+                this.dispatchEvent(new CustomEvent("repeat-mode-changed", {
+                    detail: {
+                        repeatMode: this._repeatMode
+                    }
+                }));
+            }
+            if (playbackState.shuffle_state !== this._shuffle || forceEventTriggers) {
+                this._shuffle = playbackState.shuffle_state;
+                this.dispatchEvent(new CustomEvent("shuffle-mode-changed", {
+                    detail: {
+                        shuffle: this._shuffle
+                    }
+                }));
+            }
+            if (playbackState.is_playing !== this._playing || forceEventTriggers) {
+                this._playing = playbackState.is_playing;
+                this.dispatchEvent(new CustomEvent("playback-state-changed", {
+                    detail: {
+                        playing: this._playing
+                    }
+                }));
+            }
+            if (playbackState.device && playbackState.device.volume_percent !== this._volume || forceEventTriggers) {
+                this._volume = playbackState.device.volume_percent / 100;
+                this.dispatchEvent(new CustomEvent("volume-changed", {
+                    detail: {
+                        volume: this._volume
+                    }
+                }));
+            }
+            if (playbackState.item) this.dispatchEvent(new CustomEvent("current-time", {
+                detail: {
+                    currentTime: playbackState.progress_ms,
+                    duration: playbackState.item.duration_ms
+                }
+            }));
+        } else {
+            this.dispatchEvent(new CustomEvent("playback-cleared"));
+            this._currentTrackId = null;
+            this._playing = false;
+            this._repeatMode = "off";
+            this._shuffle = false;
+            this._volume = 1;
+        }
+    }
+    enablePlaybackUpdates(intervalTime = 500) {
+        const update = async (forceEventTriggers) => {
+            if (!this._autoUpdateInterval) return;
+            try {
+                await this.__triggerUpdate(forceEventTriggers);
+            } catch (error) {
+                console.warn(error);
+            }
+            setTimeout(update.bind(this, false), this._autoUpdateInterval);
+        };
+        const alreadyRunning = !!this._autoUpdateInterval;
+        this._autoUpdateInterval = intervalTime;
+        if(!alreadyRunning) update(true);
+    }
+    disablePlaybackUpdates() {
+        this._autoUpdateInterval = 0;
+    }
 }
 
+// #region UI Update
 const volumeLevels = [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
         <path d="M5.63636 13L10 7H13V29H10L5.63636 23H2V13H5.63636Z" fill="currentColor"></path>
@@ -174,8 +274,6 @@ function getSpotideckTrackProgress() {
     const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
     return normalizedValue;
 }
-window.setSpotideckTrackProgress = setSpotideckTrackProgress;
-window.getSpotideckTrackProgress = getSpotideckTrackProgress;
 function setSpotideckVolumePercentage(volume = 0) {
     const sliderContainer = document.querySelector("#spotideck-volume-slider");
     const iconContainer = sliderContainer.querySelector(".gamepadslider_Icon_K9V_G");
@@ -193,8 +291,6 @@ function getSpotideckVolumePercentage() {
     const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
     return normalizedValue;
 }
-window.setSpotideckVolumePercentage = setSpotideckVolumePercentage;
-window.getSpotideckVolumePercentage = getSpotideckVolumePercentage;
 
 function setToggleState(toggle, state) {
     const ENABLED_CLASS = "gamepaddialog_On_yLrDA";
@@ -213,8 +309,6 @@ function getSpotideckShuffle() {
     const shuffleButton = document.querySelector("#spotideck-shuffle-control");
     return getToggleState(shuffleButton);
 }
-window.setSpotideckShuffle = setSpotideckShuffle;
-window.getSpotideckShuffle = getSpotideckShuffle;
 function setSpotideckRepeat(repeat = false) {
     const repeatButton = document.querySelector("#spotideck-repeat-control");
     setToggleState(repeatButton, repeat);
@@ -223,9 +317,24 @@ function getSpotideckRepeat() {
     const repeatButton = document.querySelector("#spotideck-repeat-control");
     return getToggleState(repeatButton);
 }
-window.setSpotideckRepeat = setSpotideckRepeat;
-window.getSpotideckRepeat = getSpotideckRepeat;
 
+function setSpotideckCover(coverURL) {
+    document.querySelector("#spotideck-track-artwork img").src = coverURL || "";
+}
+function setSpotideckTitle(title = "No track playing") {
+    const element = document.querySelector("#spotideck-track-info .track-info-title");
+    element.textContent = title || "No track playing";
+}
+function setSpotideckArtist(artist = "") {
+    const element = document.querySelector("#spotideck-track-info .track-info-artist");
+    element.textContent = artist || "";
+}
+function setSpotideckIsPlaying(isPlaying = false) {
+    const element = document.querySelector("#spotideck-play-pause");
+    if (isPlaying) element.classList.add("is-playing");
+    else element.classList.remove("is-playing");
+}
+// #endregion UI Update
 // #region Access Server functions
 async function startAccessServer(accessProtectionToken = randomString(32)) {
     console.log(await call_plugin_method("start_access_server", { accessProtectionToken }));
@@ -297,7 +406,7 @@ async function getAccessTokenFromBackend(accessProtectionToken = "") {
         pcke
     }
 }
-// #endregion
+// #endregion Access Server functions
 // #region SpotifyAPI Init
 async function getTokens(code, pcke) {
     const fetched = await fetch("https://accounts.spotify.com/api/token", {
@@ -322,6 +431,32 @@ async function getTokens(code, pcke) {
         }
     }
 }
+
+function hookSpotifyEvents(client) {
+    client.addEventListener("refresh-token-updated", (evt) => localStorage.setItem("SPOTIDECK_REFRESH_TOKEN", evt.detail.refreshToken));
+    client.addEventListener("current-time", (evt) => setSpotideckTrackProgress(evt.detail.currentTime / evt.detail.duration));
+    client.addEventListener("repeat-mode-changed", (evt) => setSpotideckRepeat(evt.detail.repeatMode !== "off"));
+    client.addEventListener("shuffle-mode-changed", (evt) => setSpotideckShuffle(evt.detail.shuffle));
+    client.addEventListener("playback-state-changed", (evt) => setSpotideckIsPlaying(evt.detail.playing));
+    client.addEventListener("volume-changed", (evt) => setSpotideckVolumePercentage(evt.detail.volume));
+    client.addEventListener("track-changed", (evt) => {
+        setSpotideckCover(evt.detail.track.album.images.sort((a, b) => b.height - a.height)[0].url);
+        setSpotideckTitle(evt.detail.track.name);
+        if (Array.isArray(evt.detail.track.artists)) setSpotideckArtist(evt.detail.track.artists.map(a => a.name).join(", "));
+        else setSpotideckArtist("N / A");
+    });
+    client.addEventListener("playback-cleared", () => {
+        setSpotideckCover(null);
+        setSpotideckTitle(null);
+        setSpotideckArtist(null);
+        setSpotideckTrackProgress(0);
+        setSpotideckVolumePercentage(0);
+        setSpotideckRepeat(false);
+        setSpotideckShuffle(false);
+        setSpotideckIsPlaying(false);
+    });
+    client.enablePlaybackUpdates(250);
+}
 async function setupSpotifyClient(openNewWindow = true) {
     const accessKey = await startAccessServer();
     await waitForAccessServer();
@@ -337,7 +472,7 @@ async function setupSpotifyClient(openNewWindow = true) {
     if (tokens.error) throw new Error(tokens.error);
     localStorage.setItem("SPOTIDECK_REFRESH_TOKEN", tokens.refresh_token);
     const client = new Spotify(tokens.refresh_token, tokens.access_token);
-    client.addEventListener("refresh-token-updated", (evt) => localStorage.setItem("SPOTIDECK_REFRESH_TOKEN", evt.detail.refreshToken));
+    hookSpotifyEvents(client);
     return client;
 }
 async function initSpotifyControls() {
@@ -350,12 +485,12 @@ async function initSpotifyControls() {
     } else {
         document.querySelector("#spotideck-token-system").classList.add("spotideck-hidden");
         spotifyAPI = new Spotify(token);
-        spotifyAPI.addEventListener("refresh-token-updated", (evt) => localStorage.setItem("SPOTIDECK_REFRESH_TOKEN", evt.detail.refreshToken));
+        hookSpotifyEvents(spotifyAPI);
         document.querySelector("#spotideck-controls").classList.remove("spotideck-hidden");
         document.querySelector("#spotideck-track").classList.remove("spotideck-hidden");
     }
 };
-// #endregion
+// #endregion SpotifyAPI Init
 
 // #region Button Bindings
 document.querySelector("#spotideck-login-button").addEventListener("click", async () => {
@@ -379,6 +514,6 @@ document.querySelector("#spotideck-shuffle-control").addEventListener("click", a
     setSpotideckShuffle(!getSpotideckShuffle());
     evt.preventDefault();
 });
-// #endregion
+// #endregion Button Bindings
 initSpotifyControls();
 })();
