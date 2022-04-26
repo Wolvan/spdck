@@ -541,6 +541,18 @@ document.querySelector("#spotideck-next-button").addEventListener("click", async
     }
     evt.preventDefault();
 });
+document.querySelector("#spotideck-volume-slider .gamepadslider_SliderControlAndNotches_23hjX").addEventListener("click", async (evt) => {
+    const offset = evt.offsetX;
+    const width = evt.target.clientWidth;
+    const percentage = offset / width;
+    const volume = Math.round(percentage * 100);
+    const adjustedVolume = volume > 95 ? 100 : volume - (volume % 5);
+    setSpotideckVolumePercentage(adjustedVolume / 100);
+    if (spotifyAPI) {
+        await spotifyAPI.setVolume(adjustedVolume);
+        await spotifyAPI.__triggerUpdate();
+    }
+});
 // #endregion Button Bindings
 initSpotifyControls();
 })();
