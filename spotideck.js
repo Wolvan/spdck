@@ -121,27 +121,19 @@ class Spotify extends EventTarget {
     }
     async seekToPosition(msPosition) {
         if (typeof msPosition !== "number") throw new Error("No position specified");
-        return (await this.__request("/me/player/seek", "PUT", {
-            position_ms: msPosition
-        })).__statusCode === 204;
+        return (await this.__request("/me/player/seek?position_ms=" + Math.floor(msPosition), "PUT", {})).__statusCode === 204;
     }
     async setVolume(volume) {
         if (volume < 1 && volume > 0) volume *= 100;
         if (typeof volume !== "number") throw new Error("No volume specified");
-        return (await this.__request("/me/player/volume", "PUT", {
-            volume_percent: Math.floor(volume)
-        })).__statusCode === 204;
+        return (await this.__request("/me/player/volume?volume_percent=" + Math.floor(volume), "PUT", {})).__statusCode === 204;
     }
     async setRepeat(state) {
         if (typeof state !== "string" || !["track", "context", "off"].includes(state.toLowerCase())) throw new Error("No repeat state specified");
-        return (await this.__request("/me/player/repeat", "PUT", {
-            state: state.toLowerCase()
-        })).__statusCode === 204;
+        return (await this.__request("/me/player/repeat?state=" + state.toLowerCase(), "PUT", {})).__statusCode === 204;
     }
     async setShuffle(state = false) {
-        return (await this.__request("/me/player/shuffle", "PUT", {
-            state: (!!state).toString()
-        })).__statusCode === 204;
+        return (await this.__request("/me/player/shuffle?state=" + (!!state).toString(), "PUT", {})).__statusCode === 204;
     }
     async getTrackInformation(trackId) {
         if (!trackId) throw new Error("No track id specified");
@@ -507,11 +499,15 @@ document.querySelector("#force-token-logout a").addEventListener("click", (evt) 
     evt.preventDefault();
 });
 document.querySelector("#spotideck-repeat-control").addEventListener("click", async (evt) => {
-    setSpotideckRepeat(!getSpotideckRepeat());
+    const isRepeat = !getSpotideckRepeat();
+    setSpotideckRepeat(isRepeat);
+    if (spotifyAPI) await spotifyAPI.setRepeat(isRepeat ? "context" : "off");
     evt.preventDefault();
 });
 document.querySelector("#spotideck-shuffle-control").addEventListener("click", async (evt) => {
-    setSpotideckShuffle(!getSpotideckShuffle());
+    const isShuffle = !getSpotideckShuffle();
+    setSpotideckShuffle(isShuffle);
+    if (spotifyAPI) await spotifyAPI.setShuffle(isShuffle);
     evt.preventDefault();
 });
 // #endregion Button Bindings
