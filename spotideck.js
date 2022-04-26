@@ -22,6 +22,8 @@ class Spotify extends EventTarget {
     _playing = false;
     _volume = 0;
     _autoUpdateInterval = 0;
+
+    currentPlaybackTime = 0;
     constructor(refreshToken = "", accessToken = "", spotifyAPIEndpoint = "https://api.spotify.com/v1") {
         super();
         if (!refreshToken) throw new Error("No refresh token specified");
@@ -111,7 +113,10 @@ class Spotify extends EventTarget {
     }
 
     async pausePlayback() {
-        await this.__request("/me/player/pause", "PUT");
+        return (await this.__request("/me/player/pause", "PUT")).__statusCode === 204;
+    }
+    async startPlayback() {
+        return (await this.__request("/me/player/play", "PUT")).__statusCode === 204;
     }
     async previousTrack() {
         return (await this.__request("/me/player/previous", "POST")).__statusCode === 204;
@@ -195,12 +200,15 @@ class Spotify extends EventTarget {
                     }
                 }));
             }
-            if (playbackState.item) this.dispatchEvent(new CustomEvent("current-time", {
-                detail: {
-                    currentTime: playbackState.progress_ms,
-                    duration: playbackState.item.duration_ms
-                }
-            }));
+            if (playbackState.item) {
+                this.currentPlaybackTime = playbackState.progress_ms;
+                this.dispatchEvent(new CustomEvent("current-time", {
+                    detail: {
+                        currentTime: playbackState.progress_ms,
+                        duration: playbackState.item.duration_ms
+                    }
+                }));
+            }
         } else {
             this.dispatchEvent(new CustomEvent("playback-cleared"));
             this._currentTrackId = null;
@@ -508,6 +516,29 @@ document.querySelector("#spotideck-shuffle-control").addEventListener("click", a
     const isShuffle = !getSpotideckShuffle();
     setSpotideckShuffle(isShuffle);
     if (spotifyAPI) await spotifyAPI.setShuffle(isShuffle);
+    evt.preventDefault();
+});
+document.querySelector("#spotideck-play-pause").addEventListener("click", async (evt) => {
+    if (spotifyAPI) {
+        if (spotifyAPI._playing) await spotifyAPI.pausePlayback();
+        else await spotifyAPI.startPlayback();
+        await spotifyAPI.__triggerUpdate();
+    }
+    evt.preventDefault();
+});
+document.querySelector("#spotideck-previous-button").addEventListener("click", async (evt) => {
+    if (spotifyAPI) {
+        if (spotifyAPI.currentPlaybackTime <= 3000) await spotifyAPI.previousTrack();
+        else await spotifyAPI.seekToPosition(0);
+        await spotifyAPI.__triggerUpdate();
+    }
+    evt.preventDefault();
+});
+document.querySelector("#spotideck-next-button").addEventListener("click", async (evt) => {
+    if (spotifyAPI) {
+        await spotifyAPI.nextTrack();
+        await spotifyAPI.__triggerUpdate();
+    }
     evt.preventDefault();
 });
 // #endregion Button Bindings
