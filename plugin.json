@@ -5,5 +5,5 @@
     "description": "Spotify Controls for the Steamdeck Quick Access Menu",
     "main_view_html": "spotideck.html",
     "tile_view_html": "spotideck_tile_view.html",
-    "flags": ["debug"]
+    "flags": []
 }
