@@ -1,9 +1,13 @@
 {
     "name": "Spotideck",
     "author": "Wolvan",
-    "version": "0.1.0",
-    "description": "Spotify Controls for the Steamdeck Quick Access Menu",
     "main_view_html": "spotideck.html",
     "tile_view_html": "spotideck_tile_view.html",
-    "flags": []
+    "flags": [],
+    "publish": {
+        "version": "0.1.0",
+        "discord_id": "96674711420796928",
+        "description": "Spotify Controls for the Steamdeck Quick Access Menu",
+        "tags": ["spotify", "media", "playback", "music", "third-party integration"]
+    }
 }
