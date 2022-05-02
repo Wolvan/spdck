@@ -1,58 +1,58 @@
-.spotideck-hidden {
+.spdck-hidden {
     display: none;
 }
 
-#spotideck-controls,
-#spotideck-token-system {
+#spdck-controls,
+#spdck-token-system {
     margin-top: 5px;
 }
 
-#spotideck-controls-container {
+#spdck-controls-container {
     position: relative;
     height: 40px;
 }
-#spotideck-controls .spotideck-playback-control-button {
+#spdck-controls .spdck-playback-control-button {
     position: absolute;
     top: 5px;
     transform: translate(-50%);
     width: 30px;
     height: 30px;
 }
-#spotideck-controls .spotideck-playback-control-button svg {
+#spdck-controls .spdck-playback-control-button svg {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
-#spotideck-previous-button {
+#spdck-previous-button {
     left: calc(50% - 45px);
 }
-#spotideck-next-button {
+#spdck-next-button {
     left: calc(50% + 45px);
 }
-#spotideck-play-pause {
+#spdck-play-pause {
     left: 50%;
 }
-#spotideck-play-pause.is-playing #spotideck-play-button {
+#spdck-play-pause.is-playing #spdck-play-button {
     display: none;
 }
-#spotideck-play-pause:not(.is-playing) #spotideck-play-button {
+#spdck-play-pause:not(.is-playing) #spdck-play-button {
     display: block;
 }
-#spotideck-play-pause.is-playing #spotideck-pause-button {
+#spdck-play-pause.is-playing #spdck-pause-button {
     display: block;
 }
-#spotideck-play-pause:not(.is-playing) #spotideck-pause-button {
+#spdck-play-pause:not(.is-playing) #spdck-pause-button {
     display: none;
 }
 
 
-#spotideck-track-container {
+#spdck-track-container {
     position: relative;
     height: 80px;
 }
-#spotideck-track-artwork {
+#spdck-track-artwork {
     position: absolute;
     top: 5px;
     width: 70px;
@@ -62,17 +62,17 @@
     border-radius: 5px;
     border: 1px solid #bababa;
 }
-#spotideck-track-artwork img {
+#spdck-track-artwork img {
     width: 100%;
     height: 100%;
     position: absolute;
     top: 0;
     left: 0;
 }
-#spotideck-track-artwork img[src=""] {
+#spdck-track-artwork img[src=""] {
     display: none;
 }
-#spotideck-track-info {
+#spdck-track-info {
     position: absolute;
     top: 5px;
     left: calc(80px);
@@ -80,35 +80,35 @@
     width: calc(100% - 85px);
 }
 
-#spotideck-track-info .track-info-title,
-#spotideck-track-info .track-info-artist {
+#spdck-track-info .track-info-title,
+#spdck-track-info .track-info-artist {
     width: 100%;
     overflow: hidden;
 }
-#spotideck-track-info .track-info-title {
+#spdck-track-info .track-info-title {
     font-size: 1em;
     max-height: 2.7em;
     line-height: 1.25em;
 }
-#spotideck-track-info .track-info-artist {
+#spdck-track-info .track-info-artist {
     font-size: 0.75em;
     max-height: 2em;
     line-height: 1em;
 }
 
 #force-token-logout,
-#spotideck-version {
+#spdck-version {
     position: absolute;
     bottom: 5px;
     right: 7.5px;
     font-size: .75em;
 }
-#spotideck-version {
+#spdck-version {
     right: initial;
     left: 7.5px;
 }
 #force-token-logout a,
-#spotideck-version a {
+#spdck-version a {
     color: #bababa;
     text-decoration: none;
 }

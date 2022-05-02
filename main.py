@@ -10,27 +10,27 @@ import json
 from hashlib import sha256
 from base64 import b64encode
 
-SPOTIDECK_HOST_NAME = "localhost"
-SPOTIDECK_PORT_NUMBER = 49983
+SPDCK_HOST_NAME = "localhost"
+SPDCK_PORT_NUMBER = 49983
 
-spotideck_access_code_cache = {}
-class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
+spdck_access_code_cache = {}
+class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200, "ok")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "X-SPOTIDECK-ACCESS-KEY, Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "X-SPDCK-ACCESS-KEY, Content-Type")
         self.end_headers()
         return
     def do_GET(self):
-        global spotideck_access_code_cache
+        global spdck_access_code_cache
         if (self.path == "/"):
             self.send_response(302)
             self.send_header("Location", "https://accounts.spotify.com/authorize?" + urlencode({
                 "response_type": "code",
                 "client_id": "39419929d0af4ecd9823ddaf925da504",
                 "scope": "user-modify-playback-state user-read-playback-state user-read-currently-playing",
-                "redirect_uri": "http://" + SPOTIDECK_HOST_NAME + ":" + str(SPOTIDECK_PORT_NUMBER) + "/callback",
+                "redirect_uri": "http://" + SPDCK_HOST_NAME + ":" + str(SPDCK_PORT_NUMBER) + "/callback",
                 "state": self.__state,
                 "code_challenge_method": "S256",
                 "code_challenge": b64encode(sha256(self.__code_challenge.encode()).digest()).decode().replace("=", "").replace("+", "-").replace("/", "_"),
@@ -47,7 +47,7 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
             if ("error" in query and query["error"][0] != ""):
                 self.respond({"error": query["error"][0]}, 403)
                 return
-            spotideck_access_code_cache[self.__access_protection_code] = query["code"][0]
+            spdck_access_code_cache[self.__access_protection_code] = query["code"][0]
             self.respond(
                 """
                 <html>
@@ -63,17 +63,17 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
                 """
             , 200, "text/html")
         elif (self.path == "/access_code"):
-            if (self.__access_protection_code != None and self.__access_protection_code != self.headers["X-SPOTIDECK-ACCESS-KEY"]):
+            if (self.__access_protection_code != None and self.__access_protection_code != self.headers["X-SPDCK-ACCESS-KEY"]):
                 self.respond({
                     "error": "invalid_access_key"
                 })
                 return
             try:
-                if (spotideck_access_code_cache[self.__access_protection_code] is None):
+                if (spdck_access_code_cache[self.__access_protection_code] is None):
                     self.respond({})
                 else:
                     self.respond({
-                        "access_code": spotideck_access_code_cache[self.__access_protection_code],
+                        "access_code": spdck_access_code_cache[self.__access_protection_code],
                         "code_challenge": self.__code_challenge
                     })
             except AttributeError as e:
@@ -107,21 +107,21 @@ class Spotideck_AccessServerHandler(BaseHTTPRequestHandler):
             return
         self.__code_challenge = challenge
 
-def Spotideck_createHandler(access_protection_key: string):
-    handler = Spotideck_AccessServerHandler
-    spotideck_access_code_cache[access_protection_key] = None
+def Spdck_createHandler(access_protection_key: string):
+    handler = Spdck_AccessServerHandler
+    spdck_access_code_cache[access_protection_key] = None
     handler.set_access_protection_key(handler, access_protection_key)
     handler.set_state(handler, "".join(choices(string.ascii_letters + string.digits, k=16)))
     handler.set_challenge(handler, "".join(choices(string.ascii_letters + string.digits + "_.-", k=128)))
     return handler
 
-class Spotideck_ThreadedServer(Thread):
+class Spdck_ThreadedServer(Thread):
     __thread = None
     __server = None
     __serverHandler = None
     def run(self, access_protection_key = ""):
-        self.__serverHandler = Spotideck_createHandler(access_protection_key)
-        self.__server = ThreadingHTTPServer((SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER), self.__serverHandler)
+        self.__serverHandler = Spdck_createHandler(access_protection_key)
+        self.__server = ThreadingHTTPServer((SPDCK_HOST_NAME, SPDCK_PORT_NUMBER), self.__serverHandler)
         self.__thread = Thread(target=self.__server.serve_forever)
         self.__thread.start()
     def shutdown(self):
@@ -133,9 +133,9 @@ class Plugin:
     async def start_access_server(self, accessProtectionToken ):
         if (self.__active_server != None):
             self.__active_server.shutdown()
-        self.__active_server = Spotideck_ThreadedServer()
+        self.__active_server = Spdck_ThreadedServer()
         self.__active_server.run(access_protection_key = accessProtectionToken)
-        return (time.asctime(), "Spotideck Login Server UP - %s:%s" % (SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER))
+        return (time.asctime(), "Spdck Login Server UP - %s:%s" % (SPDCK_HOST_NAME, SPDCK_PORT_NUMBER))
 
     # A normal method. It can be called from JavaScript using call_plugin_function("method_2", argument1, argument2)
     async def stop_access_server(self, *args):
@@ -143,7 +143,7 @@ class Plugin:
             return False
         self.__active_server.shutdown()
         self.__active_server = None
-        return (time.asctime(), "Spotideck Login Server DOWN - %s:%s" % (SPOTIDECK_HOST_NAME, SPOTIDECK_PORT_NUMBER))
+        return (time.asctime(), "Spdck Login Server DOWN - %s:%s" % (SPDCK_HOST_NAME, SPDCK_PORT_NUMBER))
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
