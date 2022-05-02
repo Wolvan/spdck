@@ -1,5 +1,5 @@
 {
-    "name": "Spotideck",
+    "name": "Playback controls for Spotify",
     "author": "Wolvan",
     "main_view_html": "spotideck.html",
     "tile_view_html": "spotideck_tile_view.html",
