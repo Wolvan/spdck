@@ -7,7 +7,7 @@ Because Spotify doesn't allow anything sounding even remotely close to the word 
 
 ## Usage
 1. Make sure you have [Steamdeck Pluginloader](https://github.com/SteamDeckHomebrew/PluginLoader#installation) installed
-2. Download/`git clone` this repo into the `/home/deck/homebrew/plugins` folder on your Steam Deck
+2. Download/`git clone` this repo into the `/home/deck/homebrew/plugins` folder on your Steam Deck (see [**Branches** below](#branches))
 3. Have a spotify client running (on your PC, on the deck, on your phone, etc)
 4. Access the plugins in the quick access menu and select Spdck
 5. Click the login button and authorize the app, then start using it
@@ -17,6 +17,10 @@ Found any problems or have suggestions? Go ahead and open an [issue](https://git
 ## Branches
 `main` - Stable branch with tagged releases<br>
 `dev` - Unstable and bleeding-edge in development branch
+
+The branch of the plugin can be selected by cloning with the `-b` parameter:<br>
+**Stable (recommended):** `git clone -b main https://github.com/Wolvan/spdck.git`<br>
+**Development:** `git clone -b dev https://github.com/Wolvan/spdck.git`
 
 ## Issues
 - Steamdeck UI sometimes crashes to blackscreen when closing in-built browser. Steam issue? Rebooting the device fixes this.
