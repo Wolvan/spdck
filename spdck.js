@@ -318,6 +318,10 @@ function getSpdckRepeat() {
     return getToggleState(repeatButton);
 }
 
+function setSpdckBacklink(backlink = "") {
+    if (!backlink) backlink = "https://www.spotify.com/";
+    document.querySelector("#spdck-backlink").href = backlink;
+}
 function setSpdckCover(coverURL) {
     document.querySelector("#spdck-track-artwork img").src = coverURL || "";
 }
@@ -444,6 +448,7 @@ function hookSpotifyEvents(client) {
         setSpdckTitle(evt.detail.track.name);
         if (Array.isArray(evt.detail.track.artists)) setSpdckArtist(evt.detail.track.artists.map(a => a.name).join(", "));
         else setSpdckArtist("N / A");
+        setSpdckBacklink((evt.detail.track.external_urls || {}).spotify);
     });
     client.addEventListener("playback-cleared", () => {
         setSpdckCover(null);
@@ -454,6 +459,7 @@ function hookSpotifyEvents(client) {
         setSpdckRepeat(false);
         setSpdckShuffle(false);
         setSpdckIsPlaying(false);
+        setSpdckBacklink(null);
     });
     client.enablePlaybackUpdates(250);
 }
