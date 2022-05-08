@@ -18,6 +18,9 @@ Found any problems or have suggestions? Go ahead and open an [issue](https://git
 `main` - Stable branch with tagged releases<br>
 `dev` - Unstable and bleeding-edge in development branch
 
+## Issues
+- Steamdeck UI sometimes crashes to blackscreen when closing in-built browser. Steam issue? Rebooting the device fixes this.
+
 ## Support
 Like what I am doing? Share this around so more people know about it.<br>
 You can also buy me a [Ko-Fi](https://ko-fi.com/wolvan), if you really want.
