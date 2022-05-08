@@ -1,6 +1,9 @@
-# Playback Controls
+# SPDCK
+### (Pronounced es-pee-deck)
 Control your Spotify Playback from the SteamOS Quick Access Menu.<br>
 Built using [SteamOS Plugin Loader](https://github.com/SteamDeckHomebrew/PluginLoader).
+### Why the weird name?
+Because Spotify doesn't allow anything sounding even remotely close to the word Spotify. Not that it really matters.
 
 ## Usage
 1. Make sure you have [Steamdeck Pluginloader](https://github.com/SteamDeckHomebrew/PluginLoader#installation) installed

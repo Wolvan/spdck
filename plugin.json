@@ -1,5 +1,5 @@
 {
-    "name": "Playback controls for Spotify",
+    "name": "SPDCK",
     "author": "Wolvan",
     "main_view_html": "spdck.html",
     "tile_view_html": "spdck_tile_view.html",
