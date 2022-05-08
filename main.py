@@ -9,11 +9,26 @@ import string
 import json
 from hashlib import sha256
 from base64 import b64encode
+import socket
 
-SPDCK_HOST_NAME = "localhost"
+SPDCK_HOST_NAME = "0.0.0.0"
 SPDCK_PORT_NUMBER = 49983
 
 spdck_access_code_cache = {}
+spdck_client_id_cache = {}
+def Spdck_get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
 class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200, "ok")
@@ -24,44 +39,89 @@ class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
         return
     def do_GET(self):
         global spdck_access_code_cache
-        if (self.path == "/"):
-            self.send_response(302)
-            self.send_header("Location", "https://accounts.spotify.com/authorize?" + urlencode({
-                "response_type": "code",
-                "client_id": "39419929d0af4ecd9823ddaf925da504",
-                "scope": "user-modify-playback-state user-read-playback-state user-read-currently-playing",
-                "redirect_uri": "http://" + SPDCK_HOST_NAME + ":" + str(SPDCK_PORT_NUMBER) + "/callback",
-                "state": self.__state,
-                "code_challenge_method": "S256",
-                "code_challenge": b64encode(sha256(self.__code_challenge.encode()).digest()).decode().replace("=", "").replace("+", "-").replace("/", "_"),
-                "show_dialog": "false"
-            }))
-            self.end_headers()
+        if (self.path == "/redirect"):
+            if (self.__access_protection_code in spdck_client_id_cache):
+                self.send_response(302)
+                self.send_header("Location", "https://accounts.spotify.com/authorize?" + urlencode({
+                    "response_type": "code",
+                    "client_id": spdck_client_id_cache[self.__access_protection_code],
+                    "scope": "user-modify-playback-state user-read-playback-state user-read-currently-playing",
+                    "redirect_uri": "http://localhost:" + str(SPDCK_PORT_NUMBER) + "/callback",
+                    "state": self.__state,
+                    "code_challenge_method": "S256",
+                    "code_challenge": b64encode(sha256(self.__code_challenge.encode()).digest()).decode().replace("=", "").replace("+", "-").replace("/", "_"),
+                    "show_dialog": "false"
+                }))
+                self.end_headers()
+            else: 
+                self.respond("""
+                    <html>
+                        <body>
+                            <h1>Client ID required</h1>
+                            To log in to spotify, a client id is required.<br>
+                            Please <a href="/">click here</a> to try again.
+                        </body>
+                    </html>
+                    """
+                , 200, "text/html")
         elif (self.path == "/heartbeat"):
             self.respond({"status": "ok"})
         elif (self.path.startswith("/callback")):
-            query = parse_qs(self.path.split("?")[1])
-            if (query["state"][0] != self.__state):
-                self.respond({"error": "invalid_state"}, 403)
-                return
-            if ("error" in query and query["error"][0] != ""):
-                self.respond({"error": query["error"][0]}, 403)
-                return
-            spdck_access_code_cache[self.__access_protection_code] = query["code"][0]
-            self.respond(
-                """
-                <html>
-                    <body>
-                        <h1>Spotify authenticated!</h1>
-                        Return back to the quick access panel!<br>
-                        This tab will close in 5 seconds...
-                        <script type='text/javascript'>
-                            setTimeout(window.close, 5000);
-                        </script>
-                    </body>
-                </html>
-                """
-            , 200, "text/html")
+            if ("?" not in self.path):
+                self.respond(
+                    """
+                    <html>
+                        <body>
+                            <h1>Missing parameters</h1>
+                            Callback was called with missing parameters.<br>
+                            Please <a href="/">click here</a> to try again.
+                        </body>
+                    </html>
+                    """
+                , 200, "text/html")
+            else:
+                query = parse_qs(self.path.split("?")[1])
+                if (query["state"][0] != self.__state):
+                    self.respond(
+                        """
+                        <html>
+                            <body>
+                                <h1>Invalid state</h1>
+                                Callback was called with a state parameter that doesn't match what was expected.<br>
+                                Please <a href="/">click here</a> to try again.
+                            </body>
+                        </html>
+                        """
+                    , 200, "text/html")
+                    return
+                if ("error" in query and query["error"][0] != ""):
+                    self.respond(
+                    """
+                        <html>
+                            <body>
+                                <h1>Error while authorising Spotify</h1>
+                                """ + query["error"][0] + """<br>
+                                Please <a href="/">click here</a> to try again.
+                            </body>
+                        </html>
+                        """
+                    , 200, "text/html")
+                    return
+                spdck_access_code_cache[self.__access_protection_code] = query["code"][0]
+                self.respond(
+                    """
+                    <html>
+                        <body>
+                            <h1>Spotify authenticated!</h1>
+                            Return back to the quick access panel!<br>
+                            This tab will close in 5 seconds...
+                            <script type='text/javascript'>
+                                setTimeout(window.close, 5000);
+                            </script>
+                        </body>
+                    </html>
+                    """
+                , 200, "text/html")
         elif (self.path == "/access_code"):
             if (self.__access_protection_code != None and self.__access_protection_code != self.headers["X-SPDCK-ACCESS-KEY"]):
                 self.respond({
@@ -80,6 +140,119 @@ class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
                 self.respond(repr(e))
             except Exception as e:
                 self.respond(repr(e))
+        elif (self.path.startswith("/setclientid")):
+            if (self.__access_protection_code in spdck_client_id_cache):
+                self.respond("""
+                    <html>
+                        <body>
+                            <h1>Client ID already set!</h1>
+                            Return back to the steamdeck and finish authorisation!<br>
+                            This tab will close in 5 seconds...
+                            <script type='text/javascript'>
+                                setTimeout(window.close, 5000);
+                            </script>
+                        </body>
+                    </html>
+                """
+                , 200, "text/html")
+            elif ("?" not in self.path):
+                self.respond(
+                    """
+                    <html>
+                        <body>
+                            <h1>Missing parameters</h1>
+                            SetClientId was called with missing parameters.<br>
+                            Please <a href="/">click here</a> to try again.
+                        </body>
+                    </html>
+                    """
+                , 200, "text/html")
+            else:
+                query = parse_qs(self.path.split("?")[1])
+                if ("clientid" not in query or query["clientid"][0] == ""):
+                    self.respond(
+                        """
+                        <html>
+                            <body>
+                                <h1>Missing parameters</h1>
+                                SetClientId was called with missing parameters.<br>
+                                Please <a href="/">click here</a> to try again.
+                            </body>
+                        </html>
+                        """
+                    , 200, "text/html")
+                    return
+                spdck_client_id_cache[self.__access_protection_code] = query["clientid"][0]
+                self.respond("""
+                    <html>
+                        <body>
+                            <h1>Client ID set!</h1>
+                            Return back to the steamdeck and finish authorisation!<br>
+                            You can now close this tab.
+                            <script type='text/javascript'>
+                                setTimeout(window.close, 5000);
+                            </script>
+                        </body>
+                    </html>
+                """
+                , 200, "text/html")
+        elif (self.path == "/"):
+            if (self.__access_protection_code in spdck_client_id_cache):
+                client_id_val = spdck_client_id_cache[self.__access_protection_code]
+            else:
+                client_id_val = ""
+            client_id_form_text = ""
+            if (client_id_val == ""):
+                client_id_form_text = """
+                    <form method="GET" action="/setclientid">
+                        <input type="text" name="clientid" placeholder="Client ID" required pattern="[0-9a-f]{"\{32\}"}"><br>
+                        <input type="submit" value="Set token">
+                        <button onClick="window.location.reload();">Refresh Page</button>
+                    </form>
+                """
+            else:
+                client_id_form_text = """
+                    <a href="/redirect">Finish login</a>
+                """
+            self.respond(
+                """
+                <html>
+                    <head>
+                        <title>SPDCK</title>
+                        <style type="text/css">
+                            body {
+                                font-family: sans-serif;
+                                font-size: 1em;
+                                background-color: #fafafa;
+                                color: #000;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>SPDCK</h1>
+                        <h2>Authorisation</h2>
+                        <p>
+                            The next steps are best performed on a computer.<br>
+                            If you already use a computer browser, or wish to continue on the Steamdeck, follow the steps below.<br>
+                            <br>
+                            Otherwise connect to the same network as this Steamdeck with your computer and browse to the following address:<br>
+                            <code>
+                                http://""" + Spdck_get_ip() + ":" + str(self.server.server_port or 80) + """/
+                            </code>
+                        </p>
+                        <p>
+                            <b>Step 1:</b> <a href="https://developer.spotify.com/dashboard/login" target="_blank">Click here</a> to go to the Spotify Developer website and create an application.<br>
+                            <b>Step 2:</b> Once the application is created, click on <b>USERS AND ACCESS</b> at the top of the page.<br>
+                            <b>Step 3:</b> Click on <b>ADD NEW USER</b>, add your Spotify Account E-Mail and a name.<br>
+                            <b>Step 4:</b> Copy the client id above <b>Users and Access</b> and paste it into the text field below.<br>
+                            <b>Step 5:</b> Click on <b>Set token</b> below to initiate spotify authorisation.<br>
+                            <b>Step 6:</b> Return back to your Steamdeck, refresh the page and finish authorisation.<br>
+                        """ + client_id_form_text + """
+                        </p>
+                    </body>
+                </html>
+                """
+            , 200, "text/html")
         else:
             self.respond({
                 "error": "invalid_route"
