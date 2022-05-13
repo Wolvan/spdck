@@ -274,7 +274,9 @@ function getSpdckTrackProgress() {
     const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
     return normalizedValue;
 }
+let volumeLocked = false;
 function setSpdckVolumePercentage(volume = 0) {
+    if (volumeLocked) return;
     const sliderContainer = document.querySelector("#spdck-volume-slider");
     const iconContainer = sliderContainer.querySelector(".gamepadslider_Icon_21uKi");
     const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_1Cccx");
@@ -553,11 +555,18 @@ document.querySelector("#spdck-volume-slider .gamepadslider_SliderControlAndNotc
     const percentage = offset / width;
     const volume = Math.round(percentage * 100);
     const adjustedVolume = volume > 95 ? 100 : volume - (volume % 5);
+    volumeLocked = false;
     setSpdckVolumePercentage(adjustedVolume / 100);
-    if (spotifyAPI) {
-        await spotifyAPI.setVolume(adjustedVolume);
-        await spotifyAPI.__triggerUpdate();
+    volumeLocked = true;
+    try {
+        if (spotifyAPI) {
+            await spotifyAPI.setVolume(adjustedVolume);
+            await spotifyAPI.__triggerUpdate();
+        }
+    } catch (error) {
+        // meh
     }
+    volumeLocked = false;
 });
 // #endregion Button Bindings
 initSpotifyControls();
