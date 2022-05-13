@@ -264,20 +264,20 @@ const volumeLevels = [
 ];
 function setSpdckTrackProgress(progress = 0) {
     const sliderContainer = document.querySelector("#spdck-track-progress");
-    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_1Cccx");
     slider.setAttribute("style", "--normalized-slider-value:" + (progress > 1 ? 1 : progress < 0 ? 0 : progress) + ";");
 }
 function getSpdckTrackProgress() {
     const sliderContainer = document.querySelector("#spdck-track-progress");
-    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_1Cccx");
     const styleAttr = slider.getAttribute("style");
     const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
     return normalizedValue;
 }
 function setSpdckVolumePercentage(volume = 0) {
     const sliderContainer = document.querySelector("#spdck-volume-slider");
-    const iconContainer = sliderContainer.querySelector(".gamepadslider_Icon_K9V_G");
-    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    const iconContainer = sliderContainer.querySelector(".gamepadslider_Icon_21uKi");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_1Cccx");
 
     const icon = volume === 1 ? 3 : volume === 0 ? 0 : (Math.floor((volume * 100) / 33) + 1);
     iconContainer.innerHTML = volumeLevels[icon];
@@ -286,19 +286,19 @@ function setSpdckVolumePercentage(volume = 0) {
 }
 function getSpdckVolumePercentage() {
     const sliderContainer = document.querySelector("#spdck-volume-slider");
-    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_23hjX");
+    const slider = sliderContainer.querySelector(".gamepadslider_SliderControlAndNotches_1Cccx");
     const styleAttr = slider.getAttribute("style");
     const normalizedValue = styleAttr.match(/--normalized-slider-value:([0-9.]+)/)[1];
     return normalizedValue;
 }
 
 function setToggleState(toggle, state) {
-    const ENABLED_CLASS = "gamepaddialog_On_yLrDA";
+    const ENABLED_CLASS = "gamepaddialog_On_3ld7T";
     if (state && !toggle.classList.contains(ENABLED_CLASS)) toggle.classList.add(ENABLED_CLASS);
     if (!state && toggle.classList.contains(ENABLED_CLASS)) toggle.classList.remove(ENABLED_CLASS);
 }
 function getToggleState(toggle) {
-    return toggle.classList.contains("gamepaddialog_On_yLrDA");
+    return toggle.classList.contains("gamepaddialog_On_3ld7T");
 }
 
 function setSpdckShuffle(shuffle = false) {
@@ -547,7 +547,7 @@ document.querySelector("#spdck-next-button").addEventListener("click", async (ev
     }
     evt.preventDefault();
 });
-document.querySelector("#spdck-volume-slider .gamepadslider_SliderControlAndNotches_23hjX").addEventListener("click", async (evt) => {
+document.querySelector("#spdck-volume-slider .gamepadslider_SliderControlAndNotches_1Cccx").addEventListener("click", async (evt) => {
     const offset = evt.offsetX;
     const width = evt.target.clientWidth;
     const percentage = offset / width;

@@ -17,6 +17,7 @@
     transform: translate(-50%);
     width: 30px;
     height: 30px;
+    padding: 0;
 }
 #spdck-controls .spdck-playback-control-button svg {
     position: absolute;
