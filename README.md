@@ -19,8 +19,8 @@ Found any problems or have suggestions? Go ahead and open an [issue](https://git
 `dev` - Unstable and bleeding-edge in development branch
 
 The branch of the plugin can be selected by cloning with the `-b` parameter:<br>
-**Stable (recommended):** `git clone -b main https://github.com/Wolvan/spdck.git`<br>
-**Development:** `git clone -b dev https://github.com/Wolvan/spdck.git`
+**Stable (recommended):** `git clone -b main https://github.com/Wolvan/spdck.git /home/deck/homebrew/plugins/spdck`<br>
+**Development:** `git clone -b dev https://github.com/Wolvan/spdck.git /home/deck/homebrew/plugins/spdck`
 
 ## Issues
 - Steamdeck UI sometimes crashes to blackscreen when closing in-built browser. Steam issue? Rebooting the device fixes this.
