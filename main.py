@@ -10,9 +10,13 @@ import json
 from hashlib import sha256
 from base64 import b64encode
 import socket
+import pickle
+from os.path import expanduser, dirname
+from os import makedirs, remove
 
 SPDCK_HOST_NAME = "0.0.0.0"
 SPDCK_PORT_NUMBER = 49983
+SPDCK_TOKEN_FILE = expanduser("~/.config/spdck/token.pickle")
 
 spdck_access_code_cache = {}
 spdck_client_id_cache = {}
@@ -302,6 +306,7 @@ class Spdck_ThreadedServer(Thread):
         self.__server.server_close()
 
 class Plugin:
+    __spdck_token = None
     # A normal method. It can be called from JavaScript using call_plugin_function("method_1", argument1, argument2)
     async def start_access_server(self, accessProtectionToken ):
         if (self.__active_server != None):
@@ -317,6 +322,32 @@ class Plugin:
         self.__active_server.shutdown()
         self.__active_server = None
         return (time.asctime(), "Spdck Login Server DOWN - %s:%s" % (SPDCK_HOST_NAME, SPDCK_PORT_NUMBER))
+
+    async def store_token(self, refresh_token = ""):
+        if (refresh_token == ""):
+            return False
+        self.__spdck_token = refresh_token
+        makedirs(dirname(SPDCK_TOKEN_FILE), exist_ok=True)
+        pickle.dump(self.__spdck_token, open(SPDCK_TOKEN_FILE, "wb"))
+        return True
+    
+    async def load_token(self):
+        if (self.__spdck_token != None):
+            return self.__spdck_token
+        try:
+            token = pickle.load(open(SPDCK_TOKEN_FILE, "rb"))
+            self.__spdck_token = token
+            return token
+        except:
+            return None
+
+    async def remove_token(self):
+        self.__spdck_token = None
+        try:
+            remove(SPDCK_TOKEN_FILE)
+            return True
+        except:
+            return False
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):

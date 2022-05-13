@@ -437,7 +437,7 @@ async function getTokens(code, pcke) {
 }
 
 function hookSpotifyEvents(client) {
-    client.addEventListener("refresh-token-updated", (evt) => localStorage.setItem("SPDCK_REFRESH_TOKEN", evt.detail.refreshToken));
+    client.addEventListener("refresh-token-updated", (evt) => call_plugin_method("store_token", { refresh_token: evt.detail.refreshToken }));
     client.addEventListener("current-time", (evt) => setSpdckTrackProgress(evt.detail.currentTime / evt.detail.duration));
     client.addEventListener("repeat-mode-changed", (evt) => setSpdckRepeat(evt.detail.repeatMode !== "off"));
     client.addEventListener("shuffle-mode-changed", (evt) => setSpdckShuffle(evt.detail.shuffle));
@@ -476,13 +476,13 @@ async function setupSpotifyClient(openNewWindow = true) {
     await stopAccessServer();
     const tokens = await getTokens(accessCode, pcke);
     if (tokens.error) throw new Error(tokens.error);
-    localStorage.setItem("SPDCK_REFRESH_TOKEN", tokens.refresh_token);
+    await call_plugin_method("store_token", { refresh_token: tokens.refresh_token });
     const client = new Spotify(tokens.refresh_token, tokens.access_token);
     hookSpotifyEvents(client);
     return client;
 }
 async function initSpotifyControls() {
-    const token = localStorage.getItem("SPDCK_REFRESH_TOKEN");
+    const token = await call_plugin_method("load_token");
     if (!token) {
         document.querySelector("#spdck-controls").classList.add("spdck-hidden");
         document.querySelector("#spdck-track").classList.add("spdck-hidden");
@@ -508,7 +508,7 @@ document.querySelector("#spdck-login-button").addEventListener("click", async ()
     }
 });
 document.querySelector("#force-token-logout a").addEventListener("click", (evt) => {
-    localStorage.removeItem("SPDCK_REFRESH_TOKEN");
+    call_plugin_method("remove_token");
     initSpotifyControls();
     evt.preventDefault();
 });
