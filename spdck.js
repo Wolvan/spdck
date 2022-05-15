@@ -237,6 +237,79 @@ class Spotify extends EventTarget {
     }
 }
 
+// #region Version functions
+async function getGithubReleases(owner = "", repository = "") {
+    if (!owner || !repository) return null;
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repository}/releases`);
+    const json = await response.json();
+    return json.map(release => release.tag_name);
+}
+function parseVersion(versionString = "") {
+    versionString = versionString.trim();
+    const compareRegex = /^v?(\d+)\.(\d+)\.(\d+)(?:-([a-z0-9-\.]+))?(?:\+([a-z0-9-\.]+))?$/i;
+    if (!versionString.match(compareRegex)) throw new Error("Version string is not SemVer compliant");
+    let [, major, minor, patch, prerelease, build] = versionString.match(compareRegex);
+    if (prerelease && prerelease.startsWith(".")) prerelease = prerelease.substr(1);
+    if (prerelease && prerelease.endsWith(".")) prerelease = prerelease.substr(0, prerelease.length - 1);
+    if (build && build.startsWith(".")) build = build.substr(1);
+    if (build && build.endsWith(".")) build = build.substr(0, build.length - 1);
+    return {
+        major: parseInt(major),
+        minor: parseInt(minor),
+        patch: parseInt(patch),
+        prerelease: prerelease,
+        build: build
+    };
+}
+/*
+    -1 = b has presedence over a
+     0 = a and b have the same presedence
+     1 = a has presedence over b
+*/
+function compareVersions(aVersionString = "", bVersionString = "") {
+    const a = parseVersion(aVersionString);
+    const b = parseVersion(bVersionString);
+    if (a.major > b.major) return 1;
+    if (a.major < b.major) return -1;
+    if (a.minor > b.minor) return 1;
+    if (a.minor < b.minor) return -1;
+    if (a.patch > b.patch) return 1;
+    if (a.patch < b.patch) return -1;
+    if (!a.prerelease && b.prerelease) return 1;
+    if (a.prerelease && !b.prerelease) return -1;
+    if (a.prerelease && b.prerelease) {
+        const aParts = a.prerelease.split(".");
+        const bParts = b.prerelease.split(".");
+        let aPart = aParts.shift();
+        let bPart = bParts.shift();
+        while (typeof aPart !== "undefined" && typeof bPart !== "undefined") {
+            if (aPart.match(/^\d+$/) && bPart.match(/^\d+$/)) {
+                if (parseInt(aPart) > parseInt(bPart)) return 1;
+                if (parseInt(aPart) < parseInt(bPart)) return -1;
+            }
+            else if (aPart.match(/^\d+$/) && !bPart.match(/^\d+$/)) return -1;
+            else if (!aPart.match(/^\d+$/) && bPart.match(/^\d+$/)) return 1;
+            else {
+                const compareValue = aPart.localeCompare(bPart);
+                if (compareValue !== 0) return compareValue;
+            }
+            aPart = aParts.shift();
+            bPart = bParts.shift();
+        }
+        if (typeof aPart === "undefined" && typeof bPart !== "undefined") return -1;
+        if (typeof aPart === "undefined" && typeof bPart === "undefined") return 0;
+        if (typeof aPart !== "undefined" && typeof bPart === "undefined") return 1;
+    }
+    return 0;
+}
+async function getLatestGithubRelease(owner = "", repository = "") {
+    if (!owner || !repository) return null;
+    const releases = await getGithubReleases(owner, repository);
+    if (!releases) return null;
+    const latestRelease = releases.sort(compareVersions).reverse()[0];
+    return latestRelease || null;
+}
+// #endregion Version functions
 // #region UI Update
 const volumeLevels = [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
