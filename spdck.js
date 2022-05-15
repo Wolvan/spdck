@@ -309,6 +309,12 @@ async function getLatestGithubRelease(owner = "", repository = "") {
     const latestRelease = releases.sort(compareVersions).reverse()[0];
     return latestRelease || null;
 }
+async function getPluginVersion() {
+    const response = await fetch("./plugin.json");
+    const json = await response.json();
+    return json.publish.version;
+}
+window.getOwnVersion = getPluginVersion;
 // #endregion Version functions
 // #region UI Update
 const volumeLevels = [
@@ -642,5 +648,21 @@ document.querySelector("#spdck-volume-slider .gamepadslider_SliderControlAndNotc
     volumeLocked = false;
 });
 // #endregion Button Bindings
+getPluginVersion().then(async version => {
+    const versionField = document.querySelector("#spdck-version");
+    const link = versionField.querySelector("a");
+    link.textContent = "v" + version;
+    link.href = "https://github.com/Wolvan/spdck/releases/tag/v" + version;
+    const latestRelease = await getLatestGithubRelease("Wolvan", "spdck");
+    if (compareVersions(version, latestRelease) === -1) {
+        versionField.classList.add("spdck-new-version");
+        link.textContent = "v" + version + " (update available)";
+        link.href = "https://github.com/Wolvan/spdck/releases/tag/" + latestRelease;
+    } else {
+        versionField.classList.remove("spdck-new-version");
+        link.textContent = "v" + version;
+        link.href = "https://github.com/Wolvan/spdck/releases/tag/v" + version;
+    }
+}).catch(console.warn);
 initSpotifyControls();
 })();

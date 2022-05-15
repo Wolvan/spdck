@@ -113,6 +113,21 @@
     right: initial;
     left: 7.5px;
 }
+@keyframes spdck-version-pulse {
+    0% {
+        color: #bababa;
+    }
+    50% {
+        color: #ffffff;
+    }
+    100% {
+        color: #bababa;
+    }
+}
+#spdck-version.spdck-new-version a {
+    animation: spdck-version-pulse 2s infinite;
+}
+
 #force-token-logout a,
 #spdck-version a {
     color: #bababa;
