@@ -652,7 +652,9 @@ getPluginVersion().then(async version => {
     const versionField = document.querySelector("#spdck-version");
     const link = versionField.querySelector("a");
     link.textContent = "v" + version;
-    link.href = "https://github.com/Wolvan/spdck/releases/tag/v" + version;
+    const parsed = parseVersion(version);
+    const isDev = parsed.prerelease && parsed.prerelease.includes("dev");
+    link.href = isDev ? "https://github.com/Wolvan/spdck" : "https://github.com/Wolvan/spdck/releases/tag/v" + version;
     const latestRelease = await getLatestGithubRelease("Wolvan", "spdck");
     if (compareVersions(version, latestRelease) === -1) {
         versionField.classList.add("spdck-new-version");
@@ -661,7 +663,7 @@ getPluginVersion().then(async version => {
     } else {
         versionField.classList.remove("spdck-new-version");
         link.textContent = "v" + version;
-        link.href = "https://github.com/Wolvan/spdck/releases/tag/v" + version;
+        link.href = isDev ? "https://github.com/Wolvan/spdck" : "https://github.com/Wolvan/spdck/releases/tag/v" + version;
     }
 }).catch(console.warn);
 initSpotifyControls();
