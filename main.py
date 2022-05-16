@@ -347,11 +347,13 @@ class Plugin:
             }
         try:
             unpickled = pickle.load(open(SPDCK_TOKEN_FILE, "rb"))
-            self.__spdck_token = unpickled.token
-            self.__client_id = unpickled.client_id
+            self.__spdck_token = unpickled["token"]
+            self.__client_id = unpickled["client_id"]
             return unpickled
-        except:
-            return None
+        except Exception as e:
+            return {
+                "error": str(e)
+            }
 
     async def remove_token(self):
         self.__spdck_token = None
