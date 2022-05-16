@@ -10,13 +10,7 @@ Because Spotify doesn't allow anything sounding even remotely close to the word 
 2. Go to the [PluginLoader store](https://beta.deckbrew.xyz/) and press `Install v0.1.0` or download/`git clone` this repo into the `/home/deck/homebrew/plugins` folder on your Steam Deck (see [**Branches** below](#branches))
 3. Have a spotify client running (on your PC, on the deck, on your phone, etc)
 4. Access the plugins in the quick access menu and select Spdck
-5. Click the login button and authorize the app, then start using it
-
-**Note:** The current release of SPDCK forgets to mention adding a redirect URI to the created Spotify App. Please follow this step as the actual **step 4**:
-```
-Step 4: Click on EDIT SETTINGS and add the following redirect URI:
-http://localhost:49983/callback
-```
+5. Click the login button and follow the on-screen instructions, then start using it
 
 Found any problems or have suggestions? Go ahead and open an [issue](https://github.com/Wolvan/spdck/issues) or submit a pull request!
 
