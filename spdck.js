@@ -1,6 +1,5 @@
 "use strict";
 (() => {
-const CLIENT_ID = "39419929d0af4ecd9823ddaf925da504";
 const ACCESS_SERVER_URI = "http://localhost:49983";
 
 let spotifyAPI = null;
@@ -12,6 +11,7 @@ function randomString(length = 16, charset = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKL
     return result;
 }
 class Spotify extends EventTarget {
+    _clientId = null;
     _refreshToken = null;
     _accessToken = null;
     _apiEndpoint = null;
@@ -24,9 +24,11 @@ class Spotify extends EventTarget {
     _autoUpdateInterval = 0;
 
     currentPlaybackTime = 0;
-    constructor(refreshToken = "", accessToken = "", spotifyAPIEndpoint = "https://api.spotify.com/v1") {
+    constructor(clientid = "", refreshToken = "", accessToken = "", spotifyAPIEndpoint = "https://api.spotify.com/v1") {
         super();
+        if (!clientid) throw new Error("No client ID specified");
         if (!refreshToken) throw new Error("No refresh token specified");
+        this._clientId = clientid;
         this._refreshToken = refreshToken;
         this._accessToken = accessToken;
         this._apiEndpoint = spotifyAPIEndpoint;
@@ -75,7 +77,7 @@ class Spotify extends EventTarget {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             body: new URLSearchParams({
-                client_id: CLIENT_ID,
+                client_id: this._clientId,
                 grant_type: "refresh_token",
                 refresh_token: this._refreshToken
             })
@@ -493,14 +495,14 @@ async function getAccessTokenFromBackend(accessProtectionToken = "") {
 }
 // #endregion Access Server functions
 // #region SpotifyAPI Init
-async function getTokens(code, pcke) {
+async function getTokens(clientId, code, pcke) {
     const fetched = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-            client_id: CLIENT_ID,
+            client_id: clientId,
             code,
             redirect_uri: ACCESS_SERVER_URI + "/callback",
             grant_type: "authorization_code",
@@ -551,14 +553,15 @@ async function setupSpotifyClient(openNewWindow = true) {
     const {
         accessCode,
         pcke,
+        client_id,
         error
     } = await getAccessTokenFromBackend(accessKey);
     if (error) throw new Error(error);
     await stopAccessServer();
     const tokens = await getTokens(accessCode, pcke);
     if (tokens.error) throw new Error(tokens.error);
-    await call_plugin_method("store_token", { refresh_token: tokens.refresh_token });
-    const client = new Spotify(tokens.refresh_token, tokens.access_token);
+    await call_plugin_method("store_token", { refresh_token: tokens.refresh_token, client_id });
+    const client = new Spotify(client_id, tokens.refresh_token, tokens.access_token);
     hookSpotifyEvents(client);
     return client;
 }
@@ -571,7 +574,7 @@ async function initSpotifyControls() {
         document.querySelector("#spdck-token-system").classList.remove("spdck-hidden");
     } else {
         document.querySelector("#spdck-token-system").classList.add("spdck-hidden");
-        spotifyAPI = new Spotify(token);
+        spotifyAPI = new Spotify(token.client_id, token.token);
         hookSpotifyEvents(spotifyAPI);
         document.querySelector("#spdck-controls").classList.remove("spdck-hidden");
         document.querySelector("#spdck-track").classList.remove("spdck-hidden");

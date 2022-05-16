@@ -138,7 +138,8 @@ class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
                 else:
                     self.respond({
                         "access_code": spdck_access_code_cache[self.__access_protection_code],
-                        "code_challenge": self.__code_challenge
+                        "code_challenge": self.__code_challenge,
+                        "client_id": spdck_client_id_cache[self.__access_protection_code]
                     })
             except AttributeError as e:
                 self.respond(repr(e))
@@ -324,26 +325,35 @@ class Plugin:
         self.__active_server = None
         return (time.asctime(), "Spdck Login Server DOWN - %s:%s" % (SPDCK_HOST_NAME, SPDCK_PORT_NUMBER))
 
-    async def store_token(self, refresh_token = ""):
-        if (refresh_token == ""):
+    async def store_token(self, refresh_token = "", client_id = ""):
+        if (refresh_token == "" or client_id == ""):
             return False
         self.__spdck_token = refresh_token
+        self.__client_id = client_id
         makedirs(dirname(SPDCK_TOKEN_FILE), exist_ok=True)
-        pickle.dump(self.__spdck_token, open(SPDCK_TOKEN_FILE, "wb"))
+        pickle.dump({
+            "token": self.__spdck_token,
+            "client_id": self.__client_id
+        }, open(SPDCK_TOKEN_FILE, "wb"))
         return True
     
     async def load_token(self):
-        if (self.__spdck_token != None):
-            return self.__spdck_token
+        if (self.__spdck_token != None and self.__client_id != None):
+            return {
+                "token": self.__spdck_token,
+                "client_id": self.__client_id
+            }
         try:
-            token = pickle.load(open(SPDCK_TOKEN_FILE, "rb"))
-            self.__spdck_token = token
-            return token
+            unpickled = pickle.load(open(SPDCK_TOKEN_FILE, "rb"))
+            self.__spdck_token = unpickled.token
+            self.__client_id = unpickled.client_id
+            return unpickled
         except:
             return None
 
     async def remove_token(self):
         self.__spdck_token = None
+        self.__client_id = None
         try:
             remove(SPDCK_TOKEN_FILE)
             return True
