@@ -248,9 +248,10 @@ class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
                             <b>Step 1:</b> <a href="https://developer.spotify.com/dashboard/login" target="_blank">Click here</a> to go to the Spotify Developer website and create an application.<br>
                             <b>Step 2:</b> Once the application is created, click on <b>USERS AND ACCESS</b> at the top of the page.<br>
                             <b>Step 3:</b> Click on <b>ADD NEW USER</b>, add your Spotify Account E-Mail and a name.<br>
-                            <b>Step 4:</b> Copy the client id above <b>Users and Access</b> and paste it into the text field below.<br>
-                            <b>Step 5:</b> Click on <b>Set token</b> below to initiate spotify authorisation.<br>
-                            <b>Step 6:</b> Return back to your Steamdeck, refresh the page and finish authorisation.<br>
+                            <b>Step 4:</b> Click on <b>EDIT SETTINGS</b> and add the following redirect URI: `http://localhost:49983/callback`<br>
+                            <b>Step 5:</b> Copy the client id above <b>Users and Access</b> and paste it into the text field below.<br>
+                            <b>Step 6:</b> Click on <b>Set token</b> below to initiate spotify authorisation.<br>
+                            <b>Step 7:</b> Return back to your Steamdeck, refresh the page and finish authorisation.<br>
                         """ + client_id_form_text + """
                         </p>
                     </body>

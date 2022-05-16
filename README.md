@@ -12,6 +12,12 @@ Because Spotify doesn't allow anything sounding even remotely close to the word 
 4. Access the plugins in the quick access menu and select Spdck
 5. Click the login button and authorize the app, then start using it
 
+**Note:** The current release of SPDCK forgets to mention adding a redirect URI to the created Spotify App. Please follow this step as the actual **step 4**:
+```
+Step 4: Click on EDIT SETTINGS and add the following redirect URI:
+http://localhost:49983/callback
+```
+
 Found any problems or have suggestions? Go ahead and open an [issue](https://github.com/Wolvan/spdck/issues) or submit a pull request!
 
 ## Branches
