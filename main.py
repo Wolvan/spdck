@@ -210,13 +210,15 @@ class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
             if (client_id_val == ""):
                 client_id_form_text = """
                     <form method="GET" action="/setclientid">
-                        <input type="text" name="clientid" placeholder="Client ID" required pattern="[0-9a-f]{"\{32\}"}"><br>
+                        <button onClick="window.location.reload();">Refresh Page</button><br>
+                        <br>
+                        <input type="text" name="clientid" placeholder="Client ID" required pattern="[0-9a-f]{"\{32\}"}">
                         <input type="submit" value="Set token">
-                        <button onClick="window.location.reload();">Refresh Page</button>
                     </form>
                 """
             else:
                 client_id_form_text = """
+                    <br>
                     <a href="/redirect">Finish login</a>
                 """
             self.respond(
@@ -249,7 +251,7 @@ class Spdck_AccessServerHandler(BaseHTTPRequestHandler):
                             <b>Step 1:</b> <a href="https://developer.spotify.com/dashboard/login" target="_blank">Click here</a> to go to the Spotify Developer website and create an application.<br>
                             <b>Step 2:</b> Once the application is created, click on <b>USERS AND ACCESS</b> at the top of the page.<br>
                             <b>Step 3:</b> Click on <b>ADD NEW USER</b>, add your Spotify Account E-Mail and a name.<br>
-                            <b>Step 4:</b> Click on <b>EDIT SETTINGS</b> and add the following redirect URI: `http://localhost:49983/callback`<br>
+                            <b>Step 4:</b> Click on <b>EDIT SETTINGS</b> and add the following redirect URI: <code>http://localhost:49983/callback</code><br>
                             <b>Step 5:</b> Copy the client id above <b>Users and Access</b> and paste it into the text field below.<br>
                             <b>Step 6:</b> Click on <b>Set token</b> below to initiate spotify authorisation.<br>
                             <b>Step 7:</b> Return back to your Steamdeck, refresh the page and finish authorisation.<br>
