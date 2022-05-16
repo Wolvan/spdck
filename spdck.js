@@ -570,7 +570,8 @@ async function setupSpotifyClient(openNewWindow = true) {
 }
 async function initSpotifyControls() {
     const token = await call_plugin_method("load_token");
-    if (!token) {
+    if (!token || token.error) {
+        if (token.error) console.warn(token.error);
         document.querySelector("#spdck-controls").classList.add("spdck-hidden");
         document.querySelector("#spdck-track").classList.add("spdck-hidden");
         spotifyAPI = null;
