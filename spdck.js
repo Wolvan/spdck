@@ -469,7 +469,8 @@ function waitForAccessServer(timeout = 0) {
 async function getAccessTokenFromBackend(accessProtectionToken = "") {
     let accessCode = null;
     let pcke = null;
-    while (!accessCode || !pcke) {
+    let client_id
+    while (!accessCode || !pcke || !client_id) {
         try {
             const res = await fetch(ACCESS_SERVER_URI + "/access_code", {
                 headers: {
@@ -483,6 +484,7 @@ async function getAccessTokenFromBackend(accessProtectionToken = "") {
             };
             if (json.access_code) accessCode = json.access_code;
             if (json.code_challenge) pcke = json.code_challenge;
+            if (json.client_id) client_id = json.client_id;
         } catch (error) {
             console.warn(error);
         }
@@ -490,7 +492,8 @@ async function getAccessTokenFromBackend(accessProtectionToken = "") {
     }
     return {
         accessCode,
-        pcke
+        pcke,
+        client_id
     }
 }
 // #endregion Access Server functions
@@ -558,7 +561,7 @@ async function setupSpotifyClient(openNewWindow = true) {
     } = await getAccessTokenFromBackend(accessKey);
     if (error) throw new Error(error);
     await stopAccessServer();
-    const tokens = await getTokens(accessCode, pcke);
+    const tokens = await getTokens(client_id, accessCode, pcke);
     if (tokens.error) throw new Error(tokens.error);
     await call_plugin_method("store_token", { refresh_token: tokens.refresh_token, client_id });
     const client = new Spotify(client_id, tokens.refresh_token, tokens.access_token);
