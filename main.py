@@ -16,7 +16,7 @@ from os import makedirs, remove
 
 SPDCK_HOST_NAME = "0.0.0.0"
 SPDCK_PORT_NUMBER = 49983
-SPDCK_TOKEN_FILE = expanduser("~/.config/spdck/token.pickle")
+SPDCK_TOKEN_FILE = expanduser("/home/deck/.config/spdck/token.pickle")
 
 spdck_access_code_cache = {}
 spdck_client_id_cache = {}
